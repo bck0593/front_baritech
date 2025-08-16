@@ -13,6 +13,14 @@ const nextConfig = {
   output: 'standalone',
   // 静的ファイルの最適化
   compress: true,
+  // トレーリングスラッシュを無効化
+  trailingSlash: false,
+  // 実験的機能の設定
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['app-002-gen10-step3-2-node-oshima13.azurewebsites.net', 'localhost:3000']
+    }
+  },
   // セキュリティヘッダー
   async headers() {
     return [
@@ -32,6 +40,16 @@ const nextConfig = {
             value: 'origin-when-cross-origin',
           },
         ],
+      },
+    ]
+  },
+  // Azure App Service用のリダイレクト設定
+  async redirects() {
+    return [
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
       },
     ]
   },
