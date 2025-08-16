@@ -1,0 +1,157 @@
+// app/reserve/page.tsx
+import { useSearchParams } from "next/navigation";
+import { SlotPicker } from "@/components/SlotPicker";
+import { ThemedCard, ThemedCardHeader, CardTitle, CardContent } from "@/components/ThemedCard";
+import { SLOTS } from "@/constants/slots";
+import { useRouter } from "next/router";
+
+const ReservePage = () => {
+const router = useRouter();
+const searchParams = useSearchParams();
+const smallGroup = searchParams.get("smallGroup") === "1";
+const displaySlots = smallGroup ? ["12:00-12:30", "13:30-14:00", "16:00-16:30"] : SLOTS;
+const [selectedSlot, setSelectedSlot] = useState(null);
+
+return (
+  <div>
+    <main>
+      {smallGroup && (
+        <ThemedCard variant="accent">
+          <ThemedCardHeader variant="accent">
+            <CardTitle className="text-base">少人数枠モード</CardTitle>
+          </ThemedCardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-700">
+              落ち着いた環境でのご利用をご案内します。比較的静かな時間帯の候補を表示しています。
+            </p>
+          </CardContent>
+        </ThemedCard>
+      )}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">時間帯を選択</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SlotPicker slots={displaySlots} value={selectedSlot} onChange={setSelectedSlot} />
+          <div className="mt-3 text-[11px] text-ink-3">
+            空き状況は仮表示です。次のステップで内容をご確認ください。
+          </div>
+        </CardContent>
+      </Card>
+      {/* rest of code here */}
+    </main>
+  </div>
+);
+};
+
+export default ReservePage;
+
+// app/events/page.tsx
+import { useSearchParams } from "next/navigation";
+import { useProfile } from "@/contexts/profile-context";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/Card";
+import { ThemedButton, ThemedCard, ThemedCardHeader, Badge } from "@/components/ThemedComponents";
+import { useRouter } from "next/router";
+import { EVENTS } from "@/constants/events";
+
+const EventsPage = () => {
+const router = useRouter();
+const { profile } = useProfile();
+const searchParams = useSearchParams();
+const recommend = searchParams.get("recommend");
+const isLightWalkReco = recommend === "light-walk";
+const isOtherDogShy = profile.compatibility.otherDogs === "苦手";
+const [selectedEvent, setSelectedEvent] = useState(null);
+
+const events = [
+  ...EVENTS,
+  {
+    id: 5,
+    title: "散歩会ライト",
+    subtitle: "少人数・距離感重視の社会化",
+    date: "8月22日（木）",
+    time: "9:30-10:30",
+    location: "FC今治 里山ドッグラン（外周）",
+    organizer: "FC今治",
+    participants: 4,
+    maxParticipants: 8,
+    category: "outdoor",
+    description: "他犬が苦手なワンちゃん向けの少人数散歩会。距離を取りながら無理なく慣れていきます。",
+    features: ["少人数", "距離調整", "スタッフ同行", "写真レポート"],
+    image: "/placeholder.svg?height=200&width=300",
+    price: "¥500",
+    status: "available",
+  },
+];
+
+return (
+  <div>
+    <main>
+      {(isOtherDogShy || isLightWalkReco) && (
+        <ThemedCard variant="accent">
+          <ThemedCardHeader variant="accent">
+            <CardTitle className="text-base">行動提案</CardTitle>
+          </ThemedCardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-700 mb-3">
+              他犬が苦手な子でも安心。少人数枠と「散歩会ライト」から始めましょう。
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <ThemedButton variant="outline" onClick={() => setSelectedEvent(5)}>
+                散歩会ライトを見る
+              </ThemedButton>
+              <ThemedButton variant="outline" onClick={() => router.push("/reserve?smallGroup=1")}>
+                少人数枠を見る
+              </ThemedButton>
+            </div>
+          </CardContent>
+        </ThemedCard>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {events.map((event) => (
+          <Card key={event.id} onClick={() => setSelectedEvent(event.id)}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">{event.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-700 mb-3">{event.description}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {event.features.map((feature) => (
+                  <div key={feature} className="text-sm text-gray-500">
+                    {feature}
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between mt-4">
+                <div className="flex items-center">
+                  <img src={event.image || "/placeholder.svg"} alt={event.title} className="w-10 h-10 rounded mr-2" />
+                  <div>
+                    <div className="text-sm text-gray-700">{event.date}</div>
+                    <div className="text-sm text-gray-500">{event.time}</div>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  {event.id === 5 && (isOtherDogShy || isLightWalkReco) && (
+                    <Badge className="text-xs" style={{ backgroundColor: currentTheme.accent[500], color: "white" }}>
+                      おすすめ
+                    </Badge>
+                  )}
+                  <Badge className="text-xs" style={{ backgroundColor: currentTheme.price[500], color: "white" }}>
+                    {event.price}
+                  </Badge>
+                  <Badge className="text-xs" style={{ backgroundColor: currentTheme.status[500], color: "white" }}>
+                    {event.status}
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      {/* rest of code here */}
+    </main>
+  </div>
+);
+};
+
+export default EventsPage;
