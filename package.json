@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=18.0.0",
+    "node": "20.19.3",
     "npm": ">=8.0.0"
   },
   "scripts": {
@@ -11,7 +11,9 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "node server.js",
-    "deploy": "npm ci && npm run build && npm start"
+    "deploy": "npm ci && npm run build && npm start",
+    "test:api": "echo 'API connection test - implement with your FastAPI backend'",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",
