@@ -23,14 +23,19 @@ jobs:
 
       - name: Build (standalone)
         run: |
+          set -e
           npm run build
-          mkdir deploy
-          cp -R .next/standalone/* deploy/
-          cp -R .next/static deploy/.next/static
-          cp -R public deploy/public || true
+          rm -rf deploy
+          mkdir -p deploy
+          cp -R .next/standalone/. deploy/
+          mkdir -p deploy/.next/static
+          cp -R .next/static/. deploy/.next/static/
+          if [ -d public ]; then cp -R public deploy/public; fi
           cp package.json deploy/
-          cp server.js deploy/
+            cp server.js deploy/
           if [ -f web.config ]; then cp web.config deploy/; fi
+          echo '--- deploy list (top 50) ---'
+          find deploy -maxdepth 4 -type f | head -n 50
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
