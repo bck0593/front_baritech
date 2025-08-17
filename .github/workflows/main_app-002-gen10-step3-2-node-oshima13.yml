@@ -5,24 +5,43 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  NODE_ENV: production
+  NPM_CONFIG_LOGLEVEL: info
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
-        uses: actions/setup-node@v3
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
           cache: 'npm'
+          
+      - name: Verify npm configuration
+        run: |
+          echo "npm version: $(npm --version)"
+          echo "node version: $(node --version)"
+          cat .npmrc || echo "No .npmrc file found"
 
-      - name: Install deps
-        run: npm ci
+      - name: Clear npm cache
+        run: npm cache clean --force
 
-      - name: Local build (verification)
-        run: npm run build
+      - name: Install dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
+
+      - name: Build application
+        run: |
+          echo "Building Next.js application..."
+          npm run build
+          ls -la .next/ || echo "No .next directory found"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
