@@ -5,39 +5,47 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  NODE_ENV: production
+  NPM_CONFIG_LOGLEVEL: info
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Use Node.js 20
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: 'npm'
+    - name: Setup Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
 
-      - name: Install deps
-        run: npm ci
+    - name: Verify npm configuration
+      run: |
+        echo "npm version: $(npm --version)"
+        echo "node version: $(node --version)"
+        cat .npmrc || echo "No .npmrc file found"
 
-      - name: Local build (verification)
-        run: npm run build
+    - name: Clear npm cache
+      run: npm cache clean --force
 
-      - name: Debug files before deploy
-        run: |
-          echo "=== Root directory structure ==="
-          ls -la
-          echo "=== App directory check ==="
-          find . -name "app" -type d
-          echo "=== .npmrc content ==="
-          cat .npmrc || echo "No .npmrc found"
-          echo "=== package.json engines ==="
-          grep -A 3 '"engines"' package.json || echo "No engines found"
+    - name: Install dependencies
+      run: |
+        rm -f package-lock.json pnpm-lock.yaml
+        npm install --no-audit --no-fund
+        npm list --depth=0
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: app-002-gen10-step3-2-node-oshima13
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APP_002_GEN10_STEP3_2_NODE_OSHIMA13 }}
-          package: .
+    - name: Build application
+      run: |
+        echo "Building Next.js application..."
+        npm run build
+        ls -la .next/ || echo "No .next directory found"
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: app-002-gen10-step3-2-node-oshima13
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APP_002_GEN10_STEP3_2_NODE_OSHIMA13 }}
+        package: .
