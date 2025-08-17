@@ -17,6 +17,12 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        'sans': ['Inter', 'Poppins', 'Montserrat', 'system-ui', 'sans-serif'],
+        'display': ['Montserrat', 'sans-serif'],
+        'heading': ['Poppins', 'sans-serif'],
+        'body': ['Inter', 'sans-serif'],
+      },
       colors: {
         // PANTONEブランドカラー
         'pantone-blue': {

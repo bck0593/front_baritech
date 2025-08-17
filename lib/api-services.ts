@@ -1,0 +1,552 @@
+import { 
+  apiClient, 
+  createMockResponse, 
+  createMockPaginatedResponse,
+  ApiResponse,
+  PaginatedResponse 
+} from './api-client'
+import { API_CONFIG, USE_MOCK_DATA } from './api-config'
+import {
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
+  Owner,
+  CreateOwnerRequest,
+  UpdateOwnerRequest,
+  OwnerSearchParams,
+  Dog,
+  CreateDogRequest,
+  UpdateDogRequest,
+  DogSearchParams,
+  Booking,
+  CreateBookingRequest,
+  UpdateBookingRequest,
+  BookingSearchParams,
+  DiaryEntry,
+  CreateDiaryEntryRequest,
+  UpdateDiaryEntryRequest,
+  HealthRecord,
+  CreateHealthRecordRequest,
+  UpdateHealthRecordRequest,
+  Meal,
+  CreateMealRequest,
+  UpdateMealRequest,
+  DogEvaluation,
+  CreateDogEvaluationRequest,
+  Breed,
+  ServiceType,
+  BehaviorOption,
+  EvaluationOption,
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+} from './types'
+
+// モックデータのインポート（既存のmockデータを利用）
+import { mockOwners } from './mock-data/owners'
+import { mockDogs } from './mock-data/dogs'
+import { mockBookings } from './mock-data/bookings'
+import { mockUsers } from './mock-data/users'
+
+// 認証サービス
+export class AuthService {
+  static async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
+    if (USE_MOCK_DATA) {
+      // モックデータでの認証
+      const user = mockUsers.find(u => u.email === credentials.email)
+      if (user) {
+        return createMockResponse({
+          access_token: 'mock_token_' + Date.now(),
+          token_type: 'Bearer',
+          expires_in: 3600,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            status: '有効' as const,
+            role: user.role === 'user' ? '利用者' as const : 
+                  user.role === 'admin' ? '管理者' as const : 'スーパー管理者' as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+        })
+      }
+      return createMockResponse(null, 1000).then(() => ({
+        success: false,
+        error: 'Invalid credentials'
+      }))
+    }
+
+    return apiClient.post<LoginResponse>(API_CONFIG.ENDPOINTS.AUTH.LOGIN, credentials)
+  }
+
+  static async register(userData: RegisterRequest): Promise<ApiResponse<User>> {
+    if (USE_MOCK_DATA) {
+      const newUser: User = {
+        id: `mock_${Date.now()}`,
+        name: userData.name,
+        email: userData.email,
+        status: '有効',
+        role: '利用者',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+      return createMockResponse(newUser)
+    }
+
+    return apiClient.post<User>(API_CONFIG.ENDPOINTS.AUTH.REGISTER, userData)
+  }
+
+  static async logout(): Promise<ApiResponse<null>> {
+    if (USE_MOCK_DATA) {
+      return createMockResponse(null, 200)
+    }
+
+    return apiClient.post<null>(API_CONFIG.ENDPOINTS.AUTH.LOGOUT)
+  }
+}
+
+// ユーザーサービス
+export class UserService {
+  static async getUsers(): Promise<PaginatedResponse<User>> {
+    if (USE_MOCK_DATA) {
+      const users: User[] = mockUsers.map(user => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        status: '有効',
+        role: user.role === 'user' ? '利用者' : 
+              user.role === 'admin' ? '管理者' : 'スーパー管理者',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }))
+      return createMockPaginatedResponse(users)
+    }
+
+    const response = await apiClient.get<User[]>(API_CONFIG.ENDPOINTS.USERS.LIST)
+    return response as PaginatedResponse<User>
+  }
+
+  static async createUser(userData: CreateUserRequest): Promise<ApiResponse<User>> {
+    if (USE_MOCK_DATA) {
+      const newUser: User = {
+        id: `mock_${Date.now()}`,
+        ...userData,
+        status: '有効',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+      return createMockResponse(newUser)
+    }
+
+    return apiClient.post<User>(API_CONFIG.ENDPOINTS.USERS.CREATE, userData)
+  }
+
+  static async getUser(id: string): Promise<ApiResponse<User>> {
+    if (USE_MOCK_DATA) {
+      const user = mockUsers.find(u => u.id === id)
+      if (user) {
+        const mappedUser: User = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          status: '有効',
+          role: user.role === 'user' ? '利用者' : 
+                user.role === 'admin' ? '管理者' : 'スーパー管理者',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+        return createMockResponse(mappedUser)
+      }
+      return createMockResponse(null).then(() => ({ success: false, error: 'User not found' }))
+    }
+
+    return apiClient.get<User>(API_CONFIG.ENDPOINTS.USERS.GET(id))
+  }
+
+  static async updateUser(id: string, userData: UpdateUserRequest): Promise<ApiResponse<User>> {
+    if (USE_MOCK_DATA) {
+      const user = mockUsers.find(u => u.id === id)
+      if (user) {
+        const updatedUser: User = {
+          id: user.id,
+          name: userData.name || user.name,
+          email: userData.email || user.email,
+          status: userData.status || '有効',
+          role: userData.role || (user.role === 'user' ? '利用者' : 
+                                 user.role === 'admin' ? '管理者' : 'スーパー管理者'),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+        return createMockResponse(updatedUser)
+      }
+      return createMockResponse(null).then(() => ({ success: false, error: 'User not found' }))
+    }
+
+    return apiClient.put<User>(API_CONFIG.ENDPOINTS.USERS.UPDATE(id), userData)
+  }
+
+  static async deleteUser(id: string): Promise<ApiResponse<null>> {
+    if (USE_MOCK_DATA) {
+      return createMockResponse(null)
+    }
+
+    return apiClient.delete<null>(API_CONFIG.ENDPOINTS.USERS.DELETE(id))
+  }
+}
+
+// 飼い主サービス
+export class OwnerService {
+  static async getOwners(params?: OwnerSearchParams): Promise<PaginatedResponse<Owner>> {
+    if (USE_MOCK_DATA) {
+      let owners = mockOwners
+      
+      if (params?.q) {
+        const query = params.q.toLowerCase()
+        owners = owners.filter(owner => 
+          owner.name.toLowerCase().includes(query) ||
+          owner.email.toLowerCase().includes(query) ||
+          (owner.phone && owner.phone.includes(query))
+        )
+      }
+      
+      return createMockPaginatedResponse(owners, params?.page, params?.limit)
+    }
+
+    const queryParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, String(value))
+        }
+      })
+    }
+
+    const endpoint = `${API_CONFIG.ENDPOINTS.OWNERS.LIST}?${queryParams.toString()}`
+    const response = await apiClient.get<Owner[]>(endpoint)
+    return response as PaginatedResponse<Owner>
+  }
+
+  static async createOwner(ownerData: CreateOwnerRequest): Promise<ApiResponse<Owner>> {
+    if (USE_MOCK_DATA) {
+      const newOwner: Owner = {
+        id: `mock_${Date.now()}`,
+        ...ownerData,
+        created_at: new Date().toISOString(),
+      }
+      return createMockResponse(newOwner)
+    }
+
+    return apiClient.post<Owner>(API_CONFIG.ENDPOINTS.OWNERS.CREATE, ownerData)
+  }
+
+  static async getOwner(id: string): Promise<ApiResponse<Owner>> {
+    if (USE_MOCK_DATA) {
+      const owner = mockOwners.find(o => o.id === id)
+      return owner ? createMockResponse(owner) : 
+        createMockResponse(null).then(() => ({ success: false, error: 'Owner not found' }))
+    }
+
+    return apiClient.get<Owner>(API_CONFIG.ENDPOINTS.OWNERS.GET(id))
+  }
+
+  static async updateOwner(id: string, ownerData: UpdateOwnerRequest): Promise<ApiResponse<Owner>> {
+    if (USE_MOCK_DATA) {
+      const owner = mockOwners.find(o => o.id === id)
+      if (owner) {
+        const updatedOwner: Owner = {
+          ...owner,
+          ...ownerData,
+        }
+        return createMockResponse(updatedOwner)
+      }
+      return createMockResponse(null).then(() => ({ success: false, error: 'Owner not found' }))
+    }
+
+    return apiClient.put<Owner>(API_CONFIG.ENDPOINTS.OWNERS.UPDATE(id), ownerData)
+  }
+
+  static async deleteOwner(id: string): Promise<ApiResponse<null>> {
+    if (USE_MOCK_DATA) {
+      return createMockResponse(null)
+    }
+
+    return apiClient.delete<null>(API_CONFIG.ENDPOINTS.OWNERS.DELETE(id))
+  }
+
+  static async searchOwners(query: string): Promise<ApiResponse<Owner[]>> {
+    if (USE_MOCK_DATA) {
+      const filtered = mockOwners.filter(owner =>
+        owner.name.toLowerCase().includes(query.toLowerCase()) ||
+        owner.email.toLowerCase().includes(query.toLowerCase()) ||
+        (owner.phone && owner.phone.includes(query))
+      )
+      return createMockResponse(filtered)
+    }
+
+    return apiClient.get<Owner[]>(`${API_CONFIG.ENDPOINTS.OWNERS.SEARCH}?q=${encodeURIComponent(query)}`)
+  }
+}
+
+// 犬サービス
+export class DogService {
+  static async getDogs(params?: DogSearchParams): Promise<PaginatedResponse<Dog>> {
+    if (USE_MOCK_DATA) {
+      let dogs = mockDogs
+      
+      if (params?.q) {
+        const query = params.q.toLowerCase()
+        dogs = dogs.filter(dog => 
+          dog.name.toLowerCase().includes(query) ||
+          (dog.breed && dog.breed.toLowerCase().includes(query))
+        )
+      }
+      
+      if (params?.breed) {
+        dogs = dogs.filter(dog => dog.breed === params.breed)
+      }
+      
+      if (params?.owner_id) {
+        dogs = dogs.filter(dog => dog.owner_id === params.owner_id)
+      }
+      
+      return createMockPaginatedResponse(dogs, params?.page, params?.limit)
+    }
+
+    const queryParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, String(value))
+        }
+      })
+    }
+
+    const endpoint = `${API_CONFIG.ENDPOINTS.DOGS.LIST}?${queryParams.toString()}`
+    const response = await apiClient.get<Dog[]>(endpoint)
+    return response as PaginatedResponse<Dog>
+  }
+
+  static async createDog(dogData: CreateDogRequest): Promise<ApiResponse<Dog>> {
+    if (USE_MOCK_DATA) {
+      const newDog: Dog = {
+        id: `mock_${Date.now()}`,
+        ...dogData,
+      }
+      return createMockResponse(newDog)
+    }
+
+    return apiClient.post<Dog>(API_CONFIG.ENDPOINTS.DOGS.CREATE, dogData)
+  }
+
+  static async getDog(id: string): Promise<ApiResponse<Dog>> {
+    if (USE_MOCK_DATA) {
+      const dog = mockDogs.find(d => d.id === id)
+      return dog ? createMockResponse(dog) : 
+        createMockResponse(null).then(() => ({ success: false, error: 'Dog not found' }))
+    }
+
+    return apiClient.get<Dog>(API_CONFIG.ENDPOINTS.DOGS.GET(id))
+  }
+
+  static async updateDog(id: string, dogData: UpdateDogRequest): Promise<ApiResponse<Dog>> {
+    if (USE_MOCK_DATA) {
+      const dog = mockDogs.find(d => d.id === id)
+      if (dog) {
+        const updatedDog: Dog = {
+          ...dog,
+          ...dogData,
+        }
+        return createMockResponse(updatedDog)
+      }
+      return createMockResponse(null).then(() => ({ success: false, error: 'Dog not found' }))
+    }
+
+    return apiClient.put<Dog>(API_CONFIG.ENDPOINTS.DOGS.UPDATE(id), dogData)
+  }
+
+  static async deleteDog(id: string): Promise<ApiResponse<null>> {
+    if (USE_MOCK_DATA) {
+      return createMockResponse(null)
+    }
+
+    return apiClient.delete<null>(API_CONFIG.ENDPOINTS.DOGS.DELETE(id))
+  }
+
+  static async getDogsByOwner(ownerId: string): Promise<ApiResponse<Dog[]>> {
+    if (USE_MOCK_DATA) {
+      const dogs = mockDogs.filter(dog => dog.owner_id === ownerId)
+      return createMockResponse(dogs)
+    }
+
+    return apiClient.get<Dog[]>(API_CONFIG.ENDPOINTS.DOGS.BY_OWNER(ownerId))
+  }
+}
+
+// 予約サービス
+export class BookingService {
+  static async getBookings(params?: BookingSearchParams): Promise<PaginatedResponse<Booking>> {
+    if (USE_MOCK_DATA) {
+      let bookings = mockBookings
+      
+      if (params?.date) {
+        bookings = bookings.filter(booking => booking.booking_date === params.date)
+      }
+      
+      if (params?.status) {
+        bookings = bookings.filter(booking => booking.status === params.status)
+      }
+      
+      if (params?.service_type) {
+        bookings = bookings.filter(booking => booking.service_type === params.service_type)
+      }
+      
+      return createMockPaginatedResponse(bookings, params?.page, params?.limit)
+    }
+
+    const queryParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, String(value))
+        }
+      })
+    }
+
+    const endpoint = `${API_CONFIG.ENDPOINTS.BOOKINGS.LIST}?${queryParams.toString()}`
+    const response = await apiClient.get<Booking[]>(endpoint)
+    return response as PaginatedResponse<Booking>
+  }
+
+  static async createBooking(bookingData: CreateBookingRequest): Promise<ApiResponse<Booking>> {
+    if (USE_MOCK_DATA) {
+      const newBooking: Booking = {
+        id: `mock_${Date.now()}`,
+        ...bookingData,
+        status: '受付中',
+        payment_status: '未払い',
+      }
+      return createMockResponse(newBooking)
+    }
+
+    return apiClient.post<Booking>(API_CONFIG.ENDPOINTS.BOOKINGS.CREATE, bookingData)
+  }
+
+  static async getBooking(id: string): Promise<ApiResponse<Booking>> {
+    if (USE_MOCK_DATA) {
+      const booking = mockBookings.find(b => b.id === id)
+      return booking ? createMockResponse(booking) : 
+        createMockResponse(null).then(() => ({ success: false, error: 'Booking not found' }))
+    }
+
+    return apiClient.get<Booking>(API_CONFIG.ENDPOINTS.BOOKINGS.GET(id))
+  }
+
+  static async updateBooking(id: string, bookingData: UpdateBookingRequest): Promise<ApiResponse<Booking>> {
+    if (USE_MOCK_DATA) {
+      const booking = mockBookings.find(b => b.id === id)
+      if (booking) {
+        const updatedBooking: Booking = {
+          ...booking,
+          ...bookingData,
+        }
+        return createMockResponse(updatedBooking)
+      }
+      return createMockResponse(null).then(() => ({ success: false, error: 'Booking not found' }))
+    }
+
+    return apiClient.put<Booking>(API_CONFIG.ENDPOINTS.BOOKINGS.UPDATE(id), bookingData)
+  }
+
+  static async deleteBooking(id: string): Promise<ApiResponse<null>> {
+    if (USE_MOCK_DATA) {
+      return createMockResponse(null)
+    }
+
+    return apiClient.delete<null>(API_CONFIG.ENDPOINTS.BOOKINGS.DELETE(id))
+  }
+}
+
+// その他のサービスクラス（DiaryService, HealthService, MealService等）は
+// 同様のパターンで実装...
+
+// マスターデータサービス
+export class MasterDataService {
+  static async getBreeds(): Promise<ApiResponse<Breed[]>> {
+    if (USE_MOCK_DATA) {
+      const breeds: Breed[] = [
+        { id: '1', name: 'トイプードル' },
+        { id: '2', name: 'チワワ' },
+        { id: '3', name: 'ダックスフンド' },
+        { id: '4', name: 'ポメラニアン' },
+        { id: '5', name: 'ヨークシャーテリア' },
+        { id: '6', name: 'マルチーズ' },
+        { id: '7', name: 'シーズー' },
+        { id: '8', name: 'フレンチブルドッグ' },
+        { id: '9', name: '柴犬' },
+        { id: '10', name: 'ゴールデンレトリバー' },
+        { id: '11', name: 'ラブラドールレトリバー' },
+        { id: '12', name: 'ボーダーコリー' },
+        { id: '13', name: 'その他' },
+      ]
+      return createMockResponse(breeds)
+    }
+
+    return apiClient.get<Breed[]>(API_CONFIG.ENDPOINTS.BREEDS.LIST)
+  }
+
+  static async getServiceTypes(): Promise<ApiResponse<ServiceType[]>> {
+    if (USE_MOCK_DATA) {
+      const serviceTypes: ServiceType[] = [
+        { id: '1', name: '体験', description: '初回体験コース', price: 2000 },
+        { id: '2', name: '保育園', description: '一日保育', price: 5000 },
+        { id: '3', name: 'イベント', description: '特別イベント', price: 3000 },
+        { id: '4', name: 'その他', description: 'その他サービス' },
+      ]
+      return createMockResponse(serviceTypes)
+    }
+
+    return apiClient.get<ServiceType[]>(API_CONFIG.ENDPOINTS.SETTINGS.SERVICE_TYPES)
+  }
+
+  static async getBehaviorOptions(): Promise<ApiResponse<BehaviorOption[]>> {
+    if (USE_MOCK_DATA) {
+      const behaviorOptions: BehaviorOption[] = [
+        { value: 'barking', label: '要求吠え', category: 'excited' },
+        { value: 'jumping', label: '飛びつき', category: 'excited' },
+        { value: 'biting', label: '甘噛み', category: 'excited' },
+        { value: 'mounting', label: 'マウンティング', category: 'excited' },
+        { value: 'running', label: '走り回る', category: 'excited' },
+        { value: 'chasing', label: '他の犬を執拗に追いかける', category: 'excited' },
+        { value: 'crate', label: 'ハウス/クレートでの休息', category: 'cooldown' },
+        { value: 'toys', label: '知育トイ/ノーズワーク', category: 'cooldown' },
+        { value: 'massage', label: 'マッサージ/撫でる', category: 'cooldown' },
+        { value: 'isolation', label: '他の犬から隔離し、静かな場所で休ませる', category: 'cooldown' },
+        { value: 'commands', label: 'コマンドでの指示（ふせ、まて）', category: 'cooldown' },
+      ]
+      return createMockResponse(behaviorOptions)
+    }
+
+    return apiClient.get<BehaviorOption[]>(API_CONFIG.ENDPOINTS.SETTINGS.BEHAVIOR_OPTIONS)
+  }
+
+  static async getEvaluationOptions(): Promise<ApiResponse<EvaluationOption[]>> {
+    if (USE_MOCK_DATA) {
+      const evaluationOptions: EvaluationOption[] = [
+        { value: 'high', label: '高い', type: 'energy_level' },
+        { value: 'medium', label: '普通', type: 'energy_level' },
+        { value: 'low', label: '低い', type: 'energy_level' },
+        { value: 'friendly', label: 'フレンドリー', type: 'personality' },
+        { value: 'playful', label: '遊び好き', type: 'personality' },
+        { value: 'calm', label: '穏やか', type: 'personality' },
+        { value: 'cautious', label: '慎重派', type: 'personality' },
+        { value: 'independent', label: 'マイペース', type: 'personality' },
+        { value: 'passive', label: '受け身', type: 'personality' },
+        { value: 'avoidant', label: 'やや苦手', type: 'personality' },
+      ]
+      return createMockResponse(evaluationOptions)
+    }
+
+    return apiClient.get<EvaluationOption[]>(API_CONFIG.ENDPOINTS.SETTINGS.EVALUATION_OPTIONS)
+  }
+}

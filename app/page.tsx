@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemedCard, ThemedCardHeader, CardContent, CardTitle } from "@/components/themed-card"
 import { ThemedButton } from "@/components/themed-button"
+import { PhotoSlider } from "@/components/photo-slider"
 import { useTheme } from "@/contexts/theme-context"
 
 export default function HomePage() {
@@ -24,10 +25,10 @@ export default function HomePage() {
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-bold" style={{ color: 'var(--pantone-blue-800)' }}>
+              <h1 className="text-lg font-display font-bold tracking-tight" style={{ color: 'var(--pantone-blue-800)' }}>
                 DogMATEs
               </h1>
-              <p className="text-xs" style={{ color: 'var(--pantone-blue-600)' }}>FC今治 里山ドッグラン</p>
+              <p className="text-xs font-body" style={{ color: 'var(--pantone-blue-600)' }}>FC今治 里山ドッグラン</p>
             </div>
             <div className="flex items-center space-x-3">
               <button 
@@ -73,27 +74,39 @@ export default function HomePage() {
         </div>
       </header>
 
-      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+      {/* Photo Slider */}
+      <PhotoSlider className="w-full" />
+
+      <div className="max-w-md mx-auto px-4 py-4 space-y-4">
         {/* Welcome Section */}
         <div className="text-center">
-          <h2 className="text-lg font-semibold mb-1" style={{ color: 'var(--pantone-blue-800)' }}>おかえりなさい、田中さん</h2>
-          <p className="text-sm" style={{ color: 'var(--pantone-blue-600)' }}>ポチくんと素敵な一日を過ごしましょう</p>
+          <h2 className="text-lg font-heading font-semibold mb-1 tracking-tight" style={{ color: 'var(--pantone-blue-800)' }}>おかえりなさい、田中さん</h2>
+          <p className="text-sm font-body" style={{ color: 'var(--pantone-blue-600)' }}>ポチくんと素敵な一日を過ごしましょう</p>
         </div>
 
         {/* Dog Profile Card */}
         <ThemedCard variant="primary">
-          <CardContent className="pt-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm">
+          <CardContent className="pt-3 pb-3">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
                 <img
-                  src="/placeholder.svg?height=60&width=60"
+                  src="/placeholder.svg?height=48&width=48"
                   alt="ポチくん"
-                  className="w-14 h-14 rounded-full object-cover"
+                  className="w-10 h-10 rounded-full object-cover"
                 />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold" style={{ color: 'var(--pantone-blue-800)' }}>ポチくん</h3>
-                <p className="text-sm" style={{ color: 'var(--pantone-blue-600)' }}>ゴールデンレトリバー • 3歳</p>
+                <h3 className="font-heading font-semibold text-sm tracking-tight" style={{ color: 'var(--pantone-blue-800)' }}>ポチくん</h3>
+                <p className="text-xs font-body" style={{ color: 'var(--pantone-blue-600)' }}>ゴールデンレトリバー • 3歳</p>
+              </div>
+              {/* 選択中バッジ */}
+              <div>
+                <Badge 
+                  variant="secondary" 
+                  className="text-xs px-2 py-0.5 bg-green-500 text-white border-0 shadow-sm font-body font-medium"
+                >
+                  選択中
+                </Badge>
               </div>
             </div>
           </CardContent>
@@ -156,6 +169,17 @@ export default function HomePage() {
               <p className="text-xs mt-1" style={{ color: 'var(--pantone-blue-600)' }}>写真と日記を確認</p>
             </CardContent>
           </ThemedCard>
+        </div>
+
+        {/* ASICS Logo Section */}
+        <div className="flex justify-center py-6">
+          <div className="relative">
+            <img
+              src="/images/logo_asics.png"
+              alt="ASICS SATOYAMA STADIUM"
+              className="h-24 w-auto opacity-90 hover:opacity-100 transition-opacity duration-300"
+            />
+          </div>
         </div>
       </div>
     </div>
