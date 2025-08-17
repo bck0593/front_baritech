@@ -24,6 +24,15 @@ jobs:
       - name: Local build (verification)
         run: npm run build
 
+      - name: Debug files before deploy
+        run: |
+          echo "=== Root directory structure ==="
+          ls -la
+          echo "=== App directory check ==="
+          find . -name "app" -type d
+          echo "=== .npmrc content ==="
+          cat .npmrc || echo "No .npmrc found"
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
