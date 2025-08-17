@@ -20,10 +20,20 @@ jobs:
 
       - name: Install deps
         run: npm ci
-      
-      # ローカルでビルド（任意）: Oryx側でも再ビルドするが、失敗検出を早めるため敢えて実行
+
       - name: Local build (verification)
         run: npm run build
+
+      - name: Debug files before deploy
+        run: |
+          echo "=== Root directory structure ==="
+          ls -la
+          echo "=== App directory check ==="
+          find . -name "app" -type d
+          echo "=== .npmrc content ==="
+          cat .npmrc || echo "No .npmrc found"
+          echo "=== package.json engines ==="
+          grep -A 3 '"engines"' package.json || echo "No engines found"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
