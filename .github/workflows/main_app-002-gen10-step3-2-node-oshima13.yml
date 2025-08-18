@@ -36,9 +36,27 @@ jobs:
         npm ci --no-audit --no-fund
         npm list --depth=0
 
+    - name: Verify project structure
+      run: |
+        echo "=== Project Structure ==="
+        ls -la
+        echo "=== Components directory ==="
+        ls -la components/ || echo "No components directory"
+        ls -la components/ui/ || echo "No components/ui directory"
+        echo "=== tsconfig.json ==="
+        cat tsconfig.json
+
+    - name: Create symbolic link for components
+      run: |
+        echo "Creating absolute path resolution..."
+        ln -sf "$PWD/components" node_modules/@components 2>/dev/null || true
+
     - name: Build application
       run: |
         echo "Building Next.js application..."
+        echo "Current directory: $PWD"
+        echo "NODE_PATH: $NODE_PATH"
+        export NODE_PATH="$PWD:$NODE_PATH"
         npm run build
         ls -la .next/ || echo "No .next directory found"
 
