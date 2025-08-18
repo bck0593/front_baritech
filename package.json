@@ -10,7 +10,7 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "node server.js",
+    "start": "next start -p 8080 -H 0.0.0.0",
     "deploy": "npm ci && npm run build && npm start",
     "test:api": "echo 'API connection test - implement with your FastAPI backend'",
     "type-check": "tsc --noEmit"
@@ -61,9 +61,9 @@
     "next-themes": "^0.4.6",
     "postcss": "^8.5.0",
     "qrcode": "^1.5.4",
-    "react": "^19",
+    "react": "^18.3.1",
     "react-day-picker": "9.8.0",
-    "react-dom": "^19",
+    "react-dom": "^18.3.1",
     "react-hook-form": "^7.60.0",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.4",
@@ -71,13 +71,13 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss": "^3.4.14",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.25.76",
-    "typescript": "^5",
-    "@types/node": "^22",
-    "@types/react": "^19",
-    "@types/react-dom": "^19"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/qrcode": "^1.5.5"
+    "@types/qrcode": "^1.5.5",
+    "typescript": "^5",
+    "@types/node": "^22",
+    "@types/react": "^18",
+    "@types/react-dom": "^18"
   }
 }
