@@ -28,7 +28,7 @@ export default function RegisterCompletePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-center justify-center">
               <Heart className="w-5 h-5 text-red-500" />
-              ようこそ、DogMATEsへ
+              ようこそ、ImabariOneへ
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">

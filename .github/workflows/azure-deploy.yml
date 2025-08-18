@@ -1,0 +1,31 @@
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: 'app-002-gen10-step3-2-node-oshima13'
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B8958F83BB5946A9A98AEA27E8147EB3 }}
+        package: '.'

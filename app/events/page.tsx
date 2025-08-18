@@ -366,10 +366,6 @@ export default function EventsPage() {
                 参加申し込み
               </ThemedButton>
             )}
-            <ThemedButton variant="outline" className="w-full" onClick={() => handleAddToFavorites(event.id)}>
-              <Heart className="w-4 h-4 mr-2" />
-              お気に入りに追加
-            </ThemedButton>
           </div>
         </div>
 
@@ -433,7 +429,7 @@ export default function EventsPage() {
             </button>
             <div>
               <h1 className="text-lg font-semibold text-gray-800">イベント</h1>
-              <p className="text-sm text-gray-600">FC今治 里山ドッグラン</p>
+              <p className="text-sm text-gray-600">ImabariOne</p>
             </div>
           </div>
         </div>

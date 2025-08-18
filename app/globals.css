@@ -51,7 +51,7 @@
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   --border: var(--pantone-blue-200);
-  --input: var(--pantone-blue-100);
+  --input: #ffffff;
   --ring: var(--pantone-blue-400);
   --chart-1: var(--pantone-blue-500);
   --chart-2: var(--pantone-yellow-500);
@@ -223,4 +223,65 @@ input[type="range"]::-moz-range-thumb {
     max-width: 768px;
     margin: 0 auto;
   }
+}
+
+/* 入力フォーム全体の白背景強制適用 */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+textarea,
+select,
+[data-slot="input"],
+[data-slot="textarea"],
+[data-slot="select-trigger"] {
+  background-color: #ffffff !important;
+}
+
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="tel"],
+.dark input[type="url"],
+.dark input[type="search"],
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"],
+.dark textarea,
+.dark select,
+.dark [data-slot="input"],
+.dark [data-slot="textarea"],
+.dark [data-slot="select-trigger"] {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* ダイアログコンポーネントの白背景強制適用 */
+[data-radix-popper-content-wrapper],
+[role="dialog"],
+.dialog-content,
+[data-state="open"][data-radix-dialog-content] {
+  background-color: #ffffff !important;
+}
+
+/* Select ドロップダウンの白背景 */
+[data-radix-select-content],
+[role="listbox"] {
+  background-color: #ffffff !important;
+}
+
+/* テキストクランプのスタイル */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

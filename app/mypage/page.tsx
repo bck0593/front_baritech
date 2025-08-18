@@ -48,12 +48,6 @@ export default function MyPage() {
 
   const settingsItems = [
     {
-      icon: Settings,
-      title: "アプリ設定",
-      description: "テーマ・表示設定",
-      href: "/settings",
-    },
-    {
       icon: User,
       title: "アカウント設定",
       description: "パスワード・メール設定",

@@ -10,7 +10,7 @@ import { AuthProvider } from "@/contexts/auth-context"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "DogMATEs - FC今治 里山ドッグラン",
+  title: "ImabariOne",
   description: "愛犬と飼い主のための総合サポートアプリ",
     generator: 'v0.app'
 }

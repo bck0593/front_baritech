@@ -196,35 +196,39 @@ export default function CommunityPage() {
                   投稿
                 </ThemedButton>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="bg-white">
                 <DialogHeader>
                   <DialogTitle>新規投稿</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
+                <div className="space-y-4 bg-white p-4 rounded-lg">
                   <Textarea
                     placeholder="投稿内容を入力..."
                     value={newPost.content}
                     onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
                     rows={4}
+                    className="bg-white"
                   />
-                  <Select
-                    value={newPost.category}
-                    onValueChange={(value) => setNewPost({ ...newPost, category: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="カテゴリを選択" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="おすすめ情報">おすすめ情報</SelectItem>
-                      <SelectItem value="質問・相談">質問・相談</SelectItem>
-                      <SelectItem value="イベント">イベント</SelectItem>
-                      <SelectItem value="里親募集">里親募集</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="bg-white">
+                    <Select
+                      value={newPost.category}
+                      onValueChange={(value) => setNewPost({ ...newPost, category: value })}
+                    >
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="カテゴリを選択" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="おすすめ情報">おすすめ情報</SelectItem>
+                        <SelectItem value="質問・相談">質問・相談</SelectItem>
+                        <SelectItem value="イベント">イベント</SelectItem>
+                        <SelectItem value="里親募集">里親募集</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <Input
                     placeholder="タグ（カンマ区切り）"
                     value={newPost.tags}
                     onChange={(e) => setNewPost({ ...newPost, tags: e.target.value })}
+                    className="bg-white"
                   />
                   <ThemedButton onClick={handleNewPost} className="w-full" variant="primary">
                     投稿する
@@ -241,7 +245,7 @@ export default function CommunityPage() {
               placeholder="投稿を検索..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-white"
             />
           </div>
 
@@ -376,13 +380,13 @@ export default function CommunityPage() {
 
       {/* コメントダイアログ */}
       <Dialog open={isCommentDialogOpen} onOpenChange={setIsCommentDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>コメントを投稿</DialogTitle>
           </DialogHeader>
           {selectedPost && (
-            <div className="space-y-4">
-              <div className="p-3 bg-gray-50 rounded-lg">
+            <div className="space-y-4 bg-white p-4 rounded-lg">
+              <div className="p-3 bg-white border border-gray-200 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="font-medium">{selectedPost.author.name}</span>
                   <span className="text-xs text-gray-500">{selectedPost.createdAt}</span>
@@ -394,6 +398,7 @@ export default function CommunityPage() {
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 rows={3}
+                className="bg-white"
               />
               <div className="flex gap-2">
                 <ThemedButton

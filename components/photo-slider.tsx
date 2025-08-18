@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -73,7 +72,7 @@ export function PhotoSlider({ className = '' }: PhotoSliderProps) {
       setCurrentIndex((prevIndex) => 
         prevIndex === photos.length - 1 ? 0 : prevIndex + 1
       )
-    }, 4000) // 4秒間隔
+    }, 8000) // 8秒間隔
 
     return () => clearInterval(interval)
   }, [isAutoPlaying])
@@ -97,7 +96,7 @@ export function PhotoSlider({ className = '' }: PhotoSliderProps) {
   }
 
   return (
-    <div className={`relative w-full h-[280px] overflow-hidden bg-gray-100 shadow-2xl ${className}`}>
+    <div className={`relative w-full h-[280px] overflow-hidden bg-white shadow-2xl ${className}`}>
       {/* メイン画像 */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -108,45 +107,52 @@ export function PhotoSlider({ className = '' }: PhotoSliderProps) {
           transition={{ duration: 0.6, ease: "easeInOut" }}
           className="absolute inset-0"
         >
-          <Image
+          <img
             src={photos[currentIndex].src}
             alt={photos[currentIndex].alt}
-            fill
-            className="object-cover"
-            priority={currentIndex === 0}
-            sizes="100vw"
+            className="w-full h-full object-cover"
             style={{
               objectPosition: 'center center',
             }}
+            onError={(e) => {
+              console.error('Image failed to load:', photos[currentIndex].src);
+              e.currentTarget.src = '/placeholder.jpg';
+            }}
+            onLoad={() => console.log('Image loaded:', photos[currentIndex].src)}
           />
           
-          {/* より豊かなグラデーション */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+          {/* より軽やかなグラデーション */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
           
-          {/* 美しい文章オーバーレイ */}
+          {/* スタイリッシュな文章オーバーレイ - 左下にコンパクト配置 */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 1 }}
-            className="absolute bottom-12 left-3 right-3"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="absolute bottom-8 left-4 max-w-[70%]"
           >
-            <div className="bg-white/15 backdrop-blur-xl rounded-2xl p-4 border border-white/30 shadow-2xl">
+            <div className="bg-black/40 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 shadow-lg">
               <motion.h3
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6, duration: 0.8 }}
-                className="text-white text-lg font-bold mb-2"
-                style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7, duration: 0.6 }}
+                className="text-white text-base font-semibold mb-1 leading-tight"
+                style={{ 
+                  textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+                  fontFamily: 'Inter, "Hiragino Sans", "Yu Gothic UI", sans-serif'
+                }}
               >
                 {getCurrentText().title}
               </motion.h3>
               <motion.p
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8, duration: 0.8 }}
-                className="text-white text-xs leading-relaxed"
-                style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9, duration: 0.6 }}
+                className="text-white/90 text-xs leading-relaxed line-clamp-2"
+                style={{ 
+                  textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+                  fontFamily: 'Inter, "Hiragino Sans", "Yu Gothic UI", sans-serif'
+                }}
               >
                 {getCurrentText().description}
               </motion.p>
@@ -172,15 +178,15 @@ export function PhotoSlider({ className = '' }: PhotoSliderProps) {
         <ChevronRight className="w-5 h-5" />
       </button>
 
-      {/* ミニマルなインジケーター（位置再調整） */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
+      {/* ミニマルなインジケーター（右下に配置） */}
+      <div className="absolute bottom-4 right-4 flex gap-2">
         {photos.map((_, index) => (
           <button
             key={index}
-            className={`transition-all duration-500 rounded-full border border-white/30 ${
+            className={`transition-all duration-500 rounded-full border border-white/50 ${
               index === currentIndex
-                ? 'w-8 h-2 bg-white shadow-lg'
-                : 'w-2 h-2 bg-white/40 hover:bg-white/60 hover:scale-125'
+                ? 'w-6 h-2 bg-white shadow-lg'
+                : 'w-2 h-2 bg-white/50 hover:bg-white/80 hover:scale-125'
             }`}
             onClick={() => goToSlide(index)}
             aria-label={`写真 ${index + 1} へ移動`}
@@ -192,10 +198,10 @@ export function PhotoSlider({ className = '' }: PhotoSliderProps) {
       {isAutoPlaying && (
         <div className="absolute bottom-0 left-0 right-0 h-1">
           <motion.div
-            className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-80"
+            className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-60"
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
-            transition={{ duration: 4, ease: "linear" }}
+            transition={{ duration: 8, ease: "linear" }}
             key={currentIndex}
           />
         </div>

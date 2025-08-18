@@ -1,12 +1,17 @@
 "use client"
 import { useRouter } from "next/navigation"
-import { Calendar, Camera, QrCode, Bell, MapPin, Settings } from "lucide-react"
+import { Calendar, Camera, QrCode, Bell, MapPin, Settings, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemedCard, ThemedCardHeader, CardContent, CardTitle } from "@/components/themed-card"
 import { ThemedButton } from "@/components/themed-button"
-import { PhotoSlider } from "@/components/photo-slider"
+import dynamic from "next/dynamic"
 import { useTheme } from "@/contexts/theme-context"
+
+const PhotoSlider = dynamic(() => import("@/components/photo-slider").then(mod => ({ default: mod.PhotoSlider })), {
+  ssr: false,
+  loading: () => <div className="w-full h-[280px] bg-gray-200 flex items-center justify-center">Loading...</div>
+})
 
 export default function HomePage() {
   const router = useRouter()
@@ -24,24 +29,21 @@ export default function HomePage() {
       <header className="bg-white shadow-sm border-b" style={{ borderColor: 'var(--pantone-blue-200)' }}>
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-lg font-display font-bold tracking-tight" style={{ color: 'var(--pantone-blue-800)' }}>
-                DogMATEs
-              </h1>
-              <p className="text-xs font-body" style={{ color: 'var(--pantone-blue-600)' }}>FC今治 里山ドッグラン</p>
+            <div className="flex items-center">
+              <img
+                src="/imabarione.png"
+                alt="imabari one"
+                className="h-12 w-auto max-w-[220px] object-contain"
+                onError={(e) => {
+                  console.error('Logo failed to load:', e)
+                  e.currentTarget.style.display = 'none'
+                }}
+                onLoad={() => console.log('Logo loaded successfully')}
+              />
             </div>
             <div className="flex items-center space-x-3">
               <button 
-                onClick={() => router.push("/theme-settings")}
-                className="p-2 rounded-full hover:bg-opacity-10 transition-colors"
-                style={{ 
-                  color: 'var(--pantone-blue-600)',
-                  backgroundColor: 'transparent'
-                }}
-              >
-                <Settings className="w-5 h-5" />
-              </button>
-              <button 
+                onClick={() => router.push("/notifications")}
                 className="p-2 rounded-full hover:bg-opacity-10 transition-colors relative"
                 style={{ 
                   color: 'var(--pantone-blue-600)',
@@ -56,18 +58,13 @@ export default function HomePage() {
               </button>
               <button 
                 onClick={() => router.push("/mypage")}
-                className="p-1 rounded-full hover:bg-opacity-10 transition-colors"
-                style={{ backgroundColor: 'transparent' }}
+                className="p-2 rounded-full hover:bg-opacity-10 transition-colors"
+                style={{ 
+                  color: 'var(--pantone-blue-600)',
+                  backgroundColor: 'transparent'
+                }}
               >
-                <Avatar className="w-8 h-8 ring-2 ring-pantone-blue-200">
-                  <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                  <AvatarFallback
-                    style={{ backgroundColor: 'var(--pantone-blue-100)', color: 'var(--pantone-blue-700)' }}
-                    className="text-xs font-semibold"
-                  >
-                    田
-                  </AvatarFallback>
-                </Avatar>
+                <User className="w-5 h-5" />
               </button>
             </div>
           </div>
