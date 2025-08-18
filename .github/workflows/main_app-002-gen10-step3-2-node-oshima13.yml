@@ -33,8 +33,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        rm -f package-lock.json pnpm-lock.yaml
-        npm install --no-audit --no-fund
+        npm ci --no-audit --no-fund
         npm list --depth=0
 
     - name: Build application
