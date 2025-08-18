@@ -60,30 +60,9 @@ jobs:
         npm run build
         ls -la .next/ || echo "No .next directory found"
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APP_002_GEN10_STEP3_2_NODE_OSHIMA13 }}
-
-    - name: Stop Azure Web App
-      uses: azure/cli@v1
-      with:
-        azcliversion: 2.53.0
-        inlineScript: |
-          echo "Stopping Web App to avoid deployment conflicts..."
-          az webapp stop --name app-002-gen10-step3-2-node-oshima13 --resource-group appsvc_rg_linux_japaneast || true
-
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
         app-name: app-002-gen10-step3-2-node-oshima13
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APP_002_GEN10_STEP3_2_NODE_OSHIMA13 }}
         package: .
-
-    - name: Start Azure Web App
-      uses: azure/cli@v1
-      with:
-        azcliversion: 2.53.0
-        inlineScript: |
-          echo "Starting Web App after deployment..."
-          az webapp start --name app-002-gen10-step3-2-node-oshima13 --resource-group appsvc_rg_linux_japaneast
