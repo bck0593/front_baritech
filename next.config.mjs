@@ -14,9 +14,14 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    domains: ['app-002-gen10-step3-2-node-oshima13.azurewebsites.net'],
+    loader: 'default',
+    formats: ['image/webp', 'image/avif'],
   },
   // Azure App Service対応
   output: 'standalone',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
+  basePath: '',
   // 静的ファイルの最適化
   compress: true,
   // トレーリングスラッシュを無効化
@@ -68,6 +73,25 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
+          },
+        ],
+      },
+      // 静的アセットのキャッシュ設定
+      {
+        source: '/images/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
