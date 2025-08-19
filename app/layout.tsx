@@ -7,12 +7,17 @@ import { BottomNavigation } from "@/components/bottom-navigation"
 import { ProfileProvider } from "@/contexts/profile-context"
 import { AuthProvider } from "@/contexts/auth-context"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+  preload: true,
+})
 
 export const metadata: Metadata = {
   title: "ImabariOne",
   description: "愛犬と飼い主のための総合サポートアプリ",
-    generator: 'v0.app'
+  generator: 'v0.app',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 }
 
 export default function RootLayout({
@@ -21,12 +26,32 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ja">
-      <body className={inter.className}>
+    <html lang="ja" suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* Critical CSS - 最優先で適用 */
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            html { font-size: 16px; line-height: 1.5; }
+            body { 
+              min-height: 100vh; 
+              background-color: #ffffff !important; 
+              color: #001126 !important; 
+              font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+              font-weight: 400;
+              line-height: 1.6;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+            }
+          `
+        }} />
+      </head>
+      <body className={`${inter.className} min-h-screen bg-white text-gray-900`}>
         <AuthProvider>
           <ProfileProvider>
             <ThemeProvider>
-              <div className="pb-16">{children}</div>
+              <div className="pb-16 min-h-screen bg-white">{children}</div>
               <BottomNavigation />
             </ThemeProvider>
           </ProfileProvider>

@@ -15,6 +15,15 @@ async function copyStatic() {
     if (await fs.pathExists(publicSrc)) {
       await fs.copy(publicSrc, publicDest, { overwrite: true });
       console.log('✅ publicディレクトリをコピーしました');
+      
+      // 画像ファイルが正しくコピーされたか確認
+      const imagesSrc = path.join(publicSrc, 'images');
+      const imagesDest = path.join(publicDest, 'images');
+      if (await fs.pathExists(imagesSrc)) {
+        await fs.copy(imagesSrc, imagesDest, { overwrite: true });
+        const imageFiles = await fs.readdir(imagesDest);
+        console.log(`✅ ${imageFiles.length}個の画像ファイルをコピーしました:`, imageFiles.slice(0, 5).join(', '));
+      }
     }
     
     // _next/staticディレクトリをコピー
@@ -22,6 +31,19 @@ async function copyStatic() {
       await fs.copy(staticSrc, staticDest, { overwrite: true });
       console.log('✅ _next/staticディレクトリをコピーしました');
     }
+    
+    // server.jsが正しい場所にあることを確認
+    const serverJsPath = path.join(standaloneDir, 'server.js');
+    if (await fs.pathExists(serverJsPath)) {
+      console.log('✅ server.jsが正しい位置にあります');
+    } else {
+      console.log('❌ server.jsが見つかりません');
+    }
+    
+    // ファイル構造を表示
+    console.log('\n📁 Standalone ディレクトリ構造:');
+    const files = await fs.readdir(standaloneDir);
+    files.forEach(file => console.log(`  - ${file}`));
     
     console.log('🎉 静的ファイルのコピーが完了しました！');
   } catch (error) {
