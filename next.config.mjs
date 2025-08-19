@@ -14,16 +14,33 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    domains: ['app-002-gen10-step3-2-node-oshima13.azurewebsites.net'],
+    domains: ['app-002-gen10-step3-2-node-oshima13.azurewebsites.net', 'localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'app-002-gen10-step3-2-node-oshima13.azurewebsites.net',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      }
+    ],
     loader: 'default',
     formats: ['image/webp', 'image/avif'],
   },
   // Azure App Service対応
   output: 'standalone',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/' : '',
   basePath: '',
-  // 静的ファイルの最適化
+  // 本番環境での静的ファイル配信を強制
+  publicRuntimeConfig: {
+    staticFolder: '/public',
+  },
+  // 静的ファイルの最適化とキャッシュ無効化
   compress: true,
+  // Azureでの静的ファイル配信を強制
+  generateEtags: false,
+  poweredByHeader: false,
   // トレーリングスラッシュを無効化
   trailingSlash: false,
   // Webpack設定でパス解決を強化
@@ -74,24 +91,51 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
           },
-        ],
-      },
-      // 静的アセットのキャッシュ設定
-      {
-        source: '/images/(.*)',
-        headers: [
+          // キャッシュを無効化してスタイルの問題を解決
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: 'no-cache, no-store, must-revalidate',
           },
         ],
       },
+      // 静的アセットの配信を強制
       {
         source: '/_next/static/(.*)',
         headers: [
           {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=utf-8',
+          },
+          {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+      {
+        source: '/images/(.*)',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'image/*',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+      // CSS ファイルの配信を強制
+      {
+        source: '/_next/static/css/(.*)',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/css; charset=utf-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
           },
         ],
       },
