@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Toaster } from "@/components/ui/toaster"
 import { ToastProvider } from "@/components/ui/toast"
 import { SlotPicker } from "@/components/slot-picker"
-import BottomTab from "@/components/bottom-tab"
+import BottomNavigation from "@/components/bottom-navigation"
 import { motion } from "framer-motion"
 
 const SLOTS = ["10:00-11:00", "12:00-13:00", "14:00-15:00"]
@@ -186,7 +186,7 @@ export default function ReservePage() {
           </div>
         </div>
 
-        <BottomTab />
+        <BottomNavigation />
       </div>
     </ToastProvider>
   )

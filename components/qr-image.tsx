@@ -28,11 +28,11 @@ export function QrImage({
 
   if (!url) {
     return (
-      <div className="flex h-[180px] w-[180px] items-center justify-center rounded bg-gray-100 text-gray-400">QR</div>
+      <div className="flex h-[180px] w-[180px] items-center justify-center rounded bg-gray-100 text-gray-400 mx-auto">QR</div>
     )
   }
 
-  return <img src={url || "/placeholder.svg"} width={size} height={size} alt={alt} className="rounded shadow" />
+  return <img src={url || "/placeholder.svg"} width={size} height={size} alt={alt} className="rounded shadow mx-auto block" />
 }
 
 export { QrImage as QRImage }

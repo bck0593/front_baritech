@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PageHeader } from "@/components/page-header"
+import BottomNavigation from "@/components/bottom-navigation"
 import { Bell, Calendar, Heart, AlertCircle, Trash2 } from "lucide-react"
 import { useTheme } from "@/contexts/theme-context"
 
@@ -100,8 +101,9 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.read).length
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="max-w-md mx-auto bg-white">
+    <>
+      <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="max-w-md mx-auto bg-white">
         <PageHeader
           title="通知"
           subtitle={unreadCount > 0 ? `${unreadCount}件の未読通知` : "すべて既読"}
@@ -189,5 +191,7 @@ export default function NotificationsPage() {
         </div>
       </div>
     </div>
+    <BottomNavigation />
+    </>
   )
 }

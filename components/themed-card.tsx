@@ -7,21 +7,23 @@ import type React from "react"
 
 interface ThemedCardProps extends React.ComponentProps<typeof Card> {
   variant?: "default" | "primary" | "accent"
+  emphasis?: boolean // trueで枠線を太くして強調
 }
 
 interface ThemedCardHeaderProps extends React.ComponentProps<typeof CardHeader> {
   variant?: "default" | "primary" | "accent"
+  emphasis?: boolean // trueで下枠線を太く
 }
 
-export function ThemedCard({ variant = "default", className, ...props }: ThemedCardProps) {
+export function ThemedCard({ variant = "default", emphasis = false, className, ...props }: ThemedCardProps) {
   const getVariantStyles = () => {
     switch (variant) {
       case "primary":
-        return "shadow-md hover:shadow-lg transition-shadow duration-200"
+  return "border transition-colors duration-200 p-0 overflow-hidden"
       case "accent":
-        return "shadow-md hover:shadow-lg transition-shadow duration-200" 
+  return "border transition-colors duration-200 p-0 overflow-hidden" 
       default:
-        return "shadow-sm hover:shadow-md transition-shadow duration-200"
+  return "border transition-colors duration-200 p-0 overflow-hidden"
     }
   }
 
@@ -29,21 +31,21 @@ export function ThemedCard({ variant = "default", className, ...props }: ThemedC
     switch (variant) {
       case "primary":
         return {
-          borderColor: 'var(--pantone-blue-200)',
-          background: 'linear-gradient(135deg, #ffffff 0%, var(--pantone-blue-50) 100%)',
-          borderWidth: '1px',
+          borderColor: 'rgb(0, 50, 115)', /* PANTONE 288C */
+          background: '#ffffff',
+          borderWidth: emphasis ? '3px' : '2px',
         }
       case "accent":
         return {
-          borderColor: 'var(--pantone-yellow-300)',
-          background: 'linear-gradient(135deg, #ffffff 0%, var(--pantone-yellow-50) 100%)',
-          borderWidth: '1px',
+          borderColor: 'rgb(0, 50, 115)', /* PANTONE 288C */
+          background: '#ffffff',
+          borderWidth: emphasis ? '3px' : '2px',
         }
       default:
         return {
-          borderColor: 'var(--pantone-blue-100)',
+          borderColor: 'rgb(0, 50, 115)', /* PANTONE 288C */
           background: '#ffffff',
-          borderWidth: '1px',
+          borderWidth: emphasis ? '3px' : '2px',
         }
     }
   }
@@ -57,30 +59,36 @@ export function ThemedCard({ variant = "default", className, ...props }: ThemedC
   )
 }
 
-export function ThemedCardHeader({ variant = "default", className, ...props }: ThemedCardHeaderProps) {
+export function ThemedCardHeader({ variant = "default", emphasis = false, className, ...props }: ThemedCardHeaderProps) {
   const getVariantStyle = () => {
     switch (variant) {
       case "primary":
         return {
-          borderBottomColor: 'var(--pantone-blue-100)',
-          borderBottomWidth: '1px',
+          borderBottomColor: 'rgb(0, 50, 115)', /* PANTONE 288C */
+          borderBottomWidth: emphasis ? '3px' : '2px',
+          backgroundColor: 'rgb(0, 50, 115)',
+          color: '#ffffff',
         }
       case "accent":
         return {
-          borderBottomColor: 'var(--pantone-yellow-200)',
-          borderBottomWidth: '1px',
+          borderBottomColor: 'rgb(0, 50, 115)', /* PANTONE 288C */
+          borderBottomWidth: emphasis ? '3px' : '2px',
+          backgroundColor: 'rgb(0, 50, 115)',
+          color: '#ffffff',
         }
       default:
         return {
-          borderBottomColor: 'var(--pantone-blue-50)',
-          borderBottomWidth: '1px',
+          borderBottomColor: 'rgb(0, 50, 115)', /* PANTONE 288C */
+          borderBottomWidth: emphasis ? '3px' : '2px',
+          backgroundColor: 'rgb(0, 50, 115)',
+          color: '#ffffff',
         }
     }
   }
 
   return (
     <CardHeader 
-      className={cn("pb-3", className)} 
+  className={cn("py-3", className)} 
       style={getVariantStyle()}
       {...props} 
     />

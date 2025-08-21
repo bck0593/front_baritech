@@ -11,8 +11,9 @@
     "build": "next build && node copy-static.js",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "node .next/standalone/server.js",
-    "deploy": "npm ci && npm run build && npm start",
+    "start": "node server.js",
+    "azure:start": "node .next/standalone/server.js",
+    "deploy": "npm ci && npm run build && npm run azure:start",
     "test:api": "echo 'API connection test - implement with your FastAPI backend'",
     "type-check": "tsc --noEmit"
   },

@@ -7,6 +7,7 @@ import { ThemedCard, ThemedCardHeader, CardContent, CardTitle } from "@/componen
 import { ThemedButton } from "@/components/themed-button"
 import { useTheme } from "@/contexts/theme-context"
 import { useProfile } from "@/contexts/profile-context"
+import BottomNavigation from "@/components/bottom-navigation"
 
 export default function ServiceDetailPage() {
   const router = useRouter()
@@ -115,25 +116,21 @@ export default function ServiceDetailPage() {
   }
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background: `linear-gradient(to bottom, ${currentTheme.primary[50]}, white, ${currentTheme.primary[100]})`,
-      }}
-    >
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b" style={{ borderColor: currentTheme.primary[100] }}>
-        <div className="max-w-md mx-auto px-4 py-4">
-          <div className="flex items-center space-x-3">
-            <button onClick={() => router.push("/booking")}>
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <h1 className="text-lg font-semibold text-gray-800">サービス詳細</h1>
+    <>
+      <div className="min-h-screen bg-white pb-20">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b" style={{ borderColor: currentTheme.primary[100] }}>
+          <div className="max-w-md mx-auto px-4 py-4">
+            <div className="flex items-center space-x-3">
+              <button onClick={() => router.push("/booking")}>
+                <ArrowLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <h1 className="text-lg font-semibold text-gray-800">サービス詳細</h1>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         {/* Service Header */}
         <ThemedCard variant="primary">
           <CardContent className="pt-6">
@@ -186,7 +183,7 @@ export default function ServiceDetailPage() {
         <ThemedCard>
           <ThemedCardHeader>
             <CardTitle className="text-base flex items-center">
-              <Calendar className="w-4 h-4 mr-2" style={{ color: currentTheme.primary[600] }} />
+              <Calendar className="w-4 h-4 mr-2" style={{ color: 'rgb(0, 50, 115)' }} />
               日付を選択
             </CardTitle>
           </ThemedCardHeader>
@@ -199,9 +196,9 @@ export default function ServiceDetailPage() {
                   className={`p-3 rounded-lg text-center transition-colors ${date.isWeekend ? "text-red-600" : ""}`}
                   style={{
                     backgroundColor:
-                      selectedDate === date.value ? currentTheme.primary[600] : currentTheme.primary[100],
+                      selectedDate === date.value ? 'rgb(0, 50, 115)' : 'rgb(224, 242, 254)',
                     color:
-                      selectedDate === date.value ? "white" : date.isWeekend ? "#dc2626" : currentTheme.primary[700],
+                      selectedDate === date.value ? "white" : date.isWeekend ? "#dc2626" : 'rgb(0, 50, 115)',
                   }}
                 >
                   <div className="text-sm font-medium">{date.display}</div>
@@ -316,7 +313,9 @@ export default function ServiceDetailPage() {
                 : "日付を選択してください"}
           </ThemedButton>
         </div>
+        </div>
       </div>
-    </div>
+      <BottomNavigation />
+    </>
   )
 }

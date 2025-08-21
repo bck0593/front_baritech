@@ -7,6 +7,7 @@ import { ThemedButton } from "@/components/themed-button"
 import { useTheme } from "@/contexts/theme-context"
 import { useEffect } from "react"
 import { useProfile } from "@/contexts/profile-context"
+import BottomNavigation from "@/components/bottom-navigation"
 
 export default function BookingSuccessPage() {
   const router = useRouter()
@@ -21,24 +22,20 @@ export default function BookingSuccessPage() {
   }, []) // setHasBookedを依存配列から削除
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background: `linear-gradient(to bottom, ${currentTheme.primary[50]}, white, ${currentTheme.primary[100]})`,
-      }}
-    >
-      <div className="max-w-md mx-auto px-4 py-12 space-y-6">
-        {/* Success Animation */}
-        <div className="text-center">
-          <div
-            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"
-            style={{ backgroundColor: currentTheme.primary[600] }}
-          >
-            <Check className="w-10 h-10 text-white" />
+    <>
+      <div className="min-h-screen bg-white pb-20">
+        <div className="max-w-md mx-auto px-4 py-12 space-y-6">
+          {/* Success Animation */}
+          <div className="text-center">
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"
+              style={{ backgroundColor: currentTheme.primary[600] }}
+            >
+              <Check className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">予約が完了しました！</h1>
+            <p className="text-gray-600">ご予約ありがとうございます</p>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">予約が完了しました！</h1>
-          <p className="text-gray-600">ご予約ありがとうございます</p>
-        </div>
 
         {/* Booking Details */}
         <ThemedCard variant="primary">
@@ -146,7 +143,9 @@ export default function BookingSuccessPage() {
             </div>
           </CardContent>
         </ThemedCard>
+        </div>
       </div>
-    </div>
+      <BottomNavigation />
+    </>
   )
 }

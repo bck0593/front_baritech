@@ -1,12 +1,13 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Calendar, Clock, Dog, ChevronRight } from "lucide-react"
+import { ArrowLeft, Calendar, Clock, Dog, ChevronRight, List } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemedCard, ThemedCardHeader, CardContent, CardTitle } from "@/components/themed-card"
 import { ThemedButton } from "@/components/themed-button"
 import { useTheme } from "@/contexts/theme-context"
+import BottomNavigation from "@/components/bottom-navigation"
 
 export default function BookingPage() {
   const router = useRouter()
@@ -41,7 +42,7 @@ export default function BookingPage() {
       duration: "1時間",
       description: "里山の自然豊かなドッグランで自由に遊べます",
       features: ["広々とした敷地", "小型犬エリア", "水飲み場完備"],
-      icon: "🏃",
+      icon: "🐕",
       popular: false,
     },
   ]
@@ -72,15 +73,11 @@ export default function BookingPage() {
   }
 
   return (
+    <>
     <div className="max-w-md mx-auto">
-      <div
-        className="min-h-screen"
-        style={{
-          background: `linear-gradient(to bottom, ${currentTheme.primary[50]}, white, ${currentTheme.primary[100]})`,
-        }}
-      >
+      <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b" style={{ borderColor: currentTheme.primary[100] }}>
+      <header className="bg-white border-b" style={{ borderColor: 'rgb(0, 50, 115)' }}>
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center space-x-3">
             <button onClick={() => router.push("/")}>
@@ -93,14 +90,14 @@ export default function BookingPage() {
 
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         {/* Dog Selection */}
-        <ThemedCard variant="primary">
-          <ThemedCardHeader variant="primary">
-            <CardTitle className="text-base flex items-center">
-              <Dog className="w-4 h-4 mr-2" />
+        <ThemedCard>
+          <ThemedCardHeader variant="primary" style={{ backgroundColor: 'rgb(0, 50, 115)', color: '#ffffff' }}>
+            <CardTitle className="text-base flex items-center" style={{ color: '#ffffff' }}>
+              <Dog className="w-4 h-4 mr-2" style={{ color: '#ffffff' }} />
               ワンちゃん選択
             </CardTitle>
           </ThemedCardHeader>
-          <CardContent>
+          <CardContent className="pb-5">
             <div
               className="flex items-center space-x-3 p-3 rounded-lg border-2"
               style={{
@@ -123,7 +120,11 @@ export default function BookingPage() {
                 <span className="text-white text-xs">✓</span>
               </div>
             </div>
-            <ThemedButton variant="outline" size="sm" className="w-full mt-3">
+            <ThemedButton 
+              variant="primary" 
+              size="sm" 
+              className="w-full mt-3"
+            >
               別のワンちゃんを選択
             </ThemedButton>
           </CardContent>
@@ -131,10 +132,13 @@ export default function BookingPage() {
 
         {/* Service Selection */}
         <ThemedCard variant="accent">
-          <ThemedCardHeader variant="accent">
-            <CardTitle className="text-base">サービスを選択してください</CardTitle>
+          <ThemedCardHeader variant="accent" style={{ backgroundColor: 'rgb(0, 50, 115)', color: '#ffffff' }}>
+            <CardTitle className="text-base flex items-center" style={{ color: '#ffffff' }}>
+              <List className="w-4 h-4 mr-2" style={{ color: '#ffffff' }} />
+              サービス一覧
+            </CardTitle>
           </ThemedCardHeader>
-          <CardContent>
+          <CardContent className="pb-5">
             <div className="space-y-3">
               {services.map((service) => (
                 <div
@@ -142,7 +146,9 @@ export default function BookingPage() {
                   onClick={() => handleServiceSelect(service.id)}
                   className="relative p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md"
                   style={{
-                    borderColor: currentTheme.accent[200],
+                    // 全サービスを太枠で強調
+                    borderWidth: "3px",
+                    borderColor: currentTheme.accent[400],
                     backgroundColor: "white",
                   }}
                 >
@@ -174,13 +180,13 @@ export default function BookingPage() {
 
         {/* Upcoming Bookings */}
         <ThemedCard>
-          <ThemedCardHeader variant="primary">
-            <CardTitle className="text-base flex items-center">
-              <Calendar className="w-4 h-4 mr-2" />
+          <ThemedCardHeader variant="primary" style={{ backgroundColor: 'rgb(0, 50, 115)', color: '#ffffff' }}>
+            <CardTitle className="text-base flex items-center" style={{ color: '#ffffff' }}>
+              <Calendar className="w-4 h-4 mr-2" style={{ color: '#ffffff' }} />
               予約一覧
             </CardTitle>
           </ThemedCardHeader>
-          <CardContent>
+          <CardContent className="pb-5">
             {upcomingBookings.length === 0 ? (
               <div className="text-center py-6">
                 <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
@@ -213,7 +219,11 @@ export default function BookingPage() {
                     </div>
                   </div>
                 ))}
-                <ThemedButton variant="outline" className="w-full mt-3" onClick={() => router.push("/booking/history")}>
+                <ThemedButton 
+                  variant="primary" 
+                  className="w-full mt-3" 
+                  onClick={() => router.push("/booking/history")}
+                >
                   すべての予約履歴を見る
                 </ThemedButton>
               </div>
@@ -223,5 +233,7 @@ export default function BookingPage() {
       </div>
     </div>
     </div>
+    <BottomNavigation />
+    </>
   )
 }

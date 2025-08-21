@@ -91,6 +91,18 @@ export const API_CONFIG = {
       LIST: '/breeds',
     },
     
+    // イベント管理
+    EVENTS: {
+      BASE: '/events',
+      LIST: '/events',
+      CREATE: '/events',
+      GET: (id: string) => `/events/${id}`,
+      UPDATE: (id: string) => `/events/${id}`,
+      DELETE: (id: string) => `/events/${id}`,
+      BY_CATEGORY: (category: string) => `/events?category=${category}`,
+      BY_STATUS: (status: string) => `/events?status=${status}`,
+    },
+    
     // 設定・マスターデータ
     SETTINGS: {
       SERVICE_TYPES: '/settings/service-types',

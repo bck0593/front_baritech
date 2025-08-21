@@ -1,11 +1,12 @@
 "use client"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ThemedCard, ThemedCardHeader, CardContent, CardTitle } from "@/components/themed-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { PageHeader } from "@/components/page-header"
-import { Calendar, Phone, Mail, FileText, Download } from "lucide-react"
+import BottomNavigation from "@/components/bottom-navigation"
+import { Calendar, Phone, Mail, FileText } from "lucide-react"
 import { useTheme } from "@/contexts/theme-context"
 
 export default function BookingDetailPage() {
@@ -36,9 +37,9 @@ export default function BookingDetailPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "confirmed":
-        return <Badge className="bg-green-100 text-green-800">予約確定</Badge>
+        return <Badge style={{ backgroundColor: '#fffce6', color: '#ccbb00' }}>予約確定</Badge>
       case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800">確認中</Badge>
+        return <Badge style={{ backgroundColor: 'rgb(0, 50, 115)', color: 'white' }}>確認中</Badge>
       case "cancelled":
         return <Badge className="bg-red-100 text-red-800">キャンセル</Badge>
       default:
@@ -51,27 +52,23 @@ export default function BookingDetailPage() {
     console.log("Cancelling booking:", bookingDetail.id)
   }
 
-  const handleDownloadReceipt = () => {
-    // 領収書ダウンロード処理
-    console.log("Downloading receipt for:", bookingDetail.id)
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="max-w-md mx-auto bg-white">
+    <>
+      <div className="min-h-screen bg-white pb-20">
+        <div className="max-w-md mx-auto">
         <PageHeader title="予約詳細" subtitle={`予約ID: ${bookingDetail.id}`} showBackButton />
 
         <div className="p-4 space-y-6">
-          <Card>
-            <CardHeader>
+          <ThemedCard emphasis>
+            <ThemedCardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                  <Calendar className="w-5 h-5 text-white" />
                   予約情報
                 </div>
                 {getStatusBadge(bookingDetail.status)}
               </CardTitle>
-            </CardHeader>
+            </ThemedCardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -105,19 +102,19 @@ export default function BookingDetailPage() {
                 <p className="font-medium">{bookingDetail.staff}</p>
               </div>
             </CardContent>
-          </Card>
+          </ThemedCard>
 
-          <Card>
-            <CardHeader>
+          <ThemedCard>
+            <ThemedCardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                <FileText className="w-5 h-5 text-white" />
                 料金・備考
               </CardTitle>
-            </CardHeader>
+            </ThemedCardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between text-lg font-bold">
                 <span>合計料金</span>
-                <span style={{ color: currentTheme.primary[600] }}>¥{bookingDetail.price.toLocaleString()}</span>
+                <span style={{ color: 'rgb(0, 50, 115)' }}>¥{bookingDetail.price.toLocaleString()}</span>
               </div>
 
               {bookingDetail.notes && (
@@ -130,15 +127,15 @@ export default function BookingDetailPage() {
                 </>
               )}
             </CardContent>
-          </Card>
+          </ThemedCard>
 
-          <Card>
-            <CardHeader>
+          <ThemedCard>
+            <ThemedCardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Phone className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                <Phone className="w-5 h-5 text-white" />
                 お問い合わせ
               </CardTitle>
-            </CardHeader>
+            </ThemedCardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-gray-600" />
@@ -149,12 +146,12 @@ export default function BookingDetailPage() {
                 <span className="text-sm">{bookingDetail.contact.email}</span>
               </div>
             </CardContent>
-          </Card>
+          </ThemedCard>
 
-          <Card>
-            <CardHeader>
+          <ThemedCard>
+            <ThemedCardHeader>
               <CardTitle>予約履歴</CardTitle>
-            </CardHeader>
+            </ThemedCardHeader>
             <CardContent className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">作成日時</span>
@@ -165,19 +162,14 @@ export default function BookingDetailPage() {
                 <span>{bookingDetail.updatedAt}</span>
               </div>
             </CardContent>
-          </Card>
+          </ThemedCard>
 
           <div className="space-y-3">
-            <Button onClick={handleDownloadReceipt} variant="outline" className="w-full bg-transparent">
-              <Download className="w-4 h-4 mr-2" />
-              領収書をダウンロード
-            </Button>
-
             {bookingDetail.status === "confirmed" && (
               <Button
                 onClick={handleCancel}
                 variant="outline"
-                className="w-full text-red-600 border-red-200 hover:bg-red-50 bg-transparent"
+                className="w-full text-red-600 border-red-300 hover:bg-red-50"
               >
                 予約をキャンセル
               </Button>
@@ -186,5 +178,7 @@ export default function BookingDetailPage() {
         </div>
       </div>
     </div>
+    <BottomNavigation />
+    </>
   )
 }

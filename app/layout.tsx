@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/contexts/theme-context"
-import { BottomNavigation } from "@/components/bottom-navigation"
 import { ProfileProvider } from "@/contexts/profile-context"
 import { AuthProvider } from "@/contexts/auth-context"
 
@@ -17,7 +16,12 @@ export const metadata: Metadata = {
   title: "ImabariOne",
   description: "愛犬と飼い主のための総合サポートアプリ",
   generator: 'v0.app',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function RootLayout({
@@ -52,7 +56,6 @@ export default function RootLayout({
           <ProfileProvider>
             <ThemeProvider>
               <div className="pb-16 min-h-screen bg-white">{children}</div>
-              <BottomNavigation />
             </ThemeProvider>
           </ProfileProvider>
         </AuthProvider>

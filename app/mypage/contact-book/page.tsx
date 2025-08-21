@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ThemedCard, ThemedCardHeader, CardContent, CardTitle } from "@/components/themed-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
+import BottomNavigation from "@/components/bottom-navigation"
+import { PageHeader } from "@/components/page-header"
 import { ArrowLeft, Heart, Users, Zap, AlertTriangle, Trophy, CheckCircle, AlertCircle, XCircle } from "lucide-react"
 import { useTheme } from "@/contexts/theme-context"
 
@@ -51,7 +53,7 @@ export default function ContactBookViewPage() {
       case "ok":
         return <CheckCircle className="w-4 h-4 text-green-600" />
       case "slightly_dislikes":
-        return <AlertCircle className="w-4 h-4 text-yellow-600" />
+        return <AlertCircle className="w-4 h-4" style={{ color: 'rgb(0, 50, 115)' }} />
       case "clearly_dislikes":
         return <XCircle className="w-4 h-4 text-red-600" />
       default:
@@ -92,7 +94,7 @@ export default function ContactBookViewPage() {
       case "level1":
         return "text-green-600"
       case "level2":
-        return "text-yellow-600"
+        return "rgb(0, 50, 115)"
       case "level3":
         return "text-orange-600"
       case "level4":
@@ -159,42 +161,41 @@ export default function ContactBookViewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="max-w-md mx-auto bg-white">
-        {/* ヘッダー */}
-        <div className="p-4 border-b flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => router.back()}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-gray-900">連絡帳</h1>
-            <p className="text-sm text-gray-600">{contactBookData.dogName}ちゃんの園での様子</p>
-          </div>
-        </div>
+    <>
+      <div className="min-h-screen bg-white pb-20">
+        <div className="max-w-md mx-auto">
+          {/* ヘッダー */}
+          <PageHeader 
+            title="連絡帳" 
+            subtitle={`${contactBookData.dogName}ちゃんの園での様子`}
+            showBackButton 
+          />
 
-        {/* 最終更新日 */}
-        <div className="p-4 bg-blue-50 border-b">
-          <p className="text-sm text-blue-700">最終更新: {contactBookData.lastUpdated}</p>
-        </div>
+          {/* 最終更新日 */}
+          <div className="px-4 pb-4">
+            <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgb(224, 242, 254)' }}>
+              <p className="text-sm" style={{ color: 'rgb(0, 50, 115)' }}>最終更新: {contactBookData.lastUpdated}</p>
+            </div>
+          </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 sticky top-0 z-10 bg-white border-b">
-            <TabsTrigger value="handling">ふれあい</TabsTrigger>
-            <TabsTrigger value="behavior">行動・性格</TabsTrigger>
-            <TabsTrigger value="records">記録・実績</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 mx-4 mb-4 bg-gray-100 rounded-lg p-1">
+            <TabsTrigger value="handling" className="rounded-md">ふれあい</TabsTrigger>
+            <TabsTrigger value="behavior" className="rounded-md">行動・性格</TabsTrigger>
+            <TabsTrigger value="records" className="rounded-md">記録・実績</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="handling" className="p-4 space-y-6">
-            <Card>
-              <CardHeader>
+          <TabsContent value="handling" className="px-4 space-y-4">
+            <ThemedCard>
+              <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Heart className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
                   身体のふれあい（お手入れ時の様子）
                 </CardTitle>
-              </CardHeader>
+              </ThemedCardHeader>
               <CardContent className="space-y-3">
                 {bodyParts.map((part) => (
-                  <div key={part.key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={part.key} className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'rgb(248, 250, 252)' }}>
                     <span className="font-medium">{part.label}</span>
                     <div className="flex items-center gap-2">
                       {getHandlingIcon(
@@ -209,33 +210,33 @@ export default function ContactBookViewPage() {
                   </div>
                 ))}
               </CardContent>
-            </Card>
+            </ThemedCard>
 
-            <Card>
-              <CardHeader>
+            <ThemedCard>
+              <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
                   お別れの時の様子
                 </CardTitle>
-              </CardHeader>
+              </ThemedCardHeader>
               <CardContent>
-                <div className="p-4 bg-gray-50 rounded-lg">
+                <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgb(248, 250, 252)' }}>
                   <p className={`font-medium ${getSeparationAnxietyColor(contactBookData.separationAnxiety)}`}>
                     {getSeparationAnxietyText(contactBookData.separationAnxiety)}
                   </p>
                 </div>
               </CardContent>
-            </Card>
+            </ThemedCard>
           </TabsContent>
 
-          <TabsContent value="behavior" className="p-4 space-y-6">
-            <Card>
-              <CardHeader>
+          <TabsContent value="behavior" className="px-4 space-y-4">
+            <ThemedCard>
+              <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
                   元気度・活発さ
                 </CardTitle>
-              </CardHeader>
+              </ThemedCardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm text-gray-600">
@@ -246,15 +247,15 @@ export default function ContactBookViewPage() {
                   <p className="text-center text-sm font-medium">レベル {contactBookData.energyLevel}/5</p>
                 </div>
               </CardContent>
-            </Card>
+            </ThemedCard>
 
-            <Card>
-              <CardHeader>
+            <ThemedCard>
+              <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
                   お友達への挨拶の仕方
                 </CardTitle>
-              </CardHeader>
+              </ThemedCardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
                   {contactBookData.greetingStyle.map((style) => (
@@ -264,69 +265,69 @@ export default function ContactBookViewPage() {
                   ))}
                 </div>
               </CardContent>
-            </Card>
+            </ThemedCard>
 
-            <Card>
-              <CardHeader>
+            <ThemedCard>
+              <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
                   興奮時の行動
                 </CardTitle>
-              </CardHeader>
+              </ThemedCardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
                   {contactBookData.excitedBehaviors.map((behavior) => (
-                    <Badge key={behavior} variant="outline" className="text-orange-600 border-orange-200">
+                    <Badge key={behavior} variant="outline" className="border-orange-200" style={{ color: 'rgb(234, 88, 12)' }}>
                       {behaviorLabels[behavior]}
                     </Badge>
                   ))}
                 </div>
               </CardContent>
-            </Card>
+            </ThemedCard>
 
-            <Card>
-              <CardHeader>
+            <ThemedCard>
+              <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Heart className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
                   効果的な落ち着かせ方
                 </CardTitle>
-              </CardHeader>
+              </ThemedCardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
                   {contactBookData.cooldownMethods.map((method) => (
-                    <Badge key={method} variant="outline" className="text-green-600 border-green-200">
+                    <Badge key={method} variant="outline" className="border-green-200" style={{ color: 'rgb(34, 197, 94)' }}>
                       {cooldownLabels[method]}
                     </Badge>
                   ))}
                 </div>
               </CardContent>
-            </Card>
+            </ThemedCard>
           </TabsContent>
 
-          <TabsContent value="records" className="p-4 space-y-6">
-            <Card>
-              <CardHeader>
+          <TabsContent value="records" className="px-4 space-y-4">
+            <ThemedCard>
+              <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Trophy className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
                   お友達との相性
                 </CardTitle>
-              </CardHeader>
+              </ThemedCardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-green-600 mb-2">好きなお友達のタイプ</h4>
+                  <h4 className="font-medium mb-2" style={{ color: 'rgb(34, 197, 94)' }}>好きなお友達のタイプ</h4>
                   <div className="flex flex-wrap gap-2">
                     {contactBookData.preferredDogTypes.map((type) => (
-                      <Badge key={type} variant="outline" className="text-green-600 border-green-200">
+                      <Badge key={type} variant="outline" className="border-green-200" style={{ color: 'rgb(34, 197, 94)' }}>
                         {dogTypeLabels[type]}
                       </Badge>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-orange-600 mb-2">苦手なお友達のタイプ</h4>
+                  <h4 className="font-medium mb-2" style={{ color: 'rgb(234, 88, 12)' }}>苦手なお友達のタイプ</h4>
                   <div className="flex flex-wrap gap-2">
                     {contactBookData.difficultDogTypes.map((type) => (
-                      <Badge key={type} variant="outline" className="text-orange-600 border-orange-200">
+                      <Badge key={type} variant="outline" className="border-orange-200" style={{ color: 'rgb(234, 88, 12)' }}>
                         {dogTypeLabels[type]}
                       </Badge>
                     ))}
@@ -335,16 +336,18 @@ export default function ContactBookViewPage() {
                 {contactBookData.pairingNotes && (
                   <div>
                     <h4 className="font-medium mb-2">園内でのお友達関係</h4>
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-blue-800">{contactBookData.pairingNotes}</p>
+                    <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgb(224, 242, 254)' }}>
+                      <p className="text-sm" style={{ color: 'rgb(0, 50, 115)' }}>{contactBookData.pairingNotes}</p>
                     </div>
                   </div>
                 )}
               </CardContent>
-            </Card>
+            </ThemedCard>
           </TabsContent>
         </Tabs>
       </div>
     </div>
+    <BottomNavigation />
+    </>
   )
 }

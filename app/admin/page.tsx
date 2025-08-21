@@ -163,9 +163,14 @@ const mockUsers: User[] = [
   },
 ]
 
+import { useAuth } from "@/contexts/auth-context"
+import { useRouter } from "next/navigation"
+
 function AdminHeader() {
   const user = { name: "管理者", role: "admin" }
   const { currentTheme } = useTheme()
+  const { logout } = useAuth()
+  const router = useRouter()
 
   return (
     <div
@@ -198,7 +203,14 @@ function AdminHeader() {
               </div>
             </div>
           </div>
-          <ThemedButton variant="outline" size="lg" onClick={() => console.log("Logout")}>
+          <ThemedButton
+            variant="outline"
+            size="lg"
+            onClick={() => {
+              logout();
+              router.push("/login");
+            }}
+          >
             <LogOut className="w-5 h-5 mr-2" />
             ログアウト
           </ThemedButton>
@@ -213,6 +225,23 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [serviceTypeFilter, setServiceTypeFilter] = useState("all")
+  const [eventForm, setEventForm] = useState({
+    title: "",
+    category: "",
+    description: "",
+    date: "",
+    startTime: "",
+    endTime: "",
+    location: "",
+    organizer: "",
+    price: "",
+    customPrice: "",
+    image: "",
+    details: "",
+    benefits: [] as string[],
+    target: [] as string[],
+    status: "draft" as "draft" | "published" | "archived"
+  })
   const [contactForm, setContactForm] = useState({
     userId: "",
     dogName: "",
@@ -421,6 +450,30 @@ export default function AdminPage() {
     return matchesSearch
   })
 
+  const handleEventSubmit = () => {
+    console.log("イベントデータ:", eventForm)
+    // ここで実際のAPI呼び出しを行う
+    alert("イベントが保存されました")
+    // フォームをリセット
+    setEventForm({
+      title: "",
+      category: "",
+      description: "",
+      date: "",
+      startTime: "",
+      endTime: "",
+      location: "",
+      organizer: "",
+      price: "",
+      customPrice: "",
+      image: "",
+      details: "",
+      benefits: [],
+      target: [],
+      status: "draft"
+    })
+  }
+
   const handleContactSubmit = () => {
     console.log("連絡帳データ:", contactForm)
     // ここで実際のAPI呼び出しを行う
@@ -494,8 +547,8 @@ export default function AdminPage() {
             <TabsTrigger value="contact" className="text-sm font-medium py-3">
               連絡帳管理
             </TabsTrigger>
-            <TabsTrigger value="community" className="text-sm font-medium py-3">
-              掲示板管理
+            <TabsTrigger value="events" className="text-sm font-medium py-3">
+              イベント登録
             </TabsTrigger>
             <TabsTrigger value="system" className="text-sm font-medium py-3">
               システム設定
@@ -812,7 +865,6 @@ export default function AdminPage() {
                   <BookOpen className="w-6 h-6" style={{ color: currentTheme.primary[500] }} />
                   保育園連絡帳入力
                 </h3>
-                <p className="text-gray-600 mt-2">保護者の代わりに連絡帳を入力・管理できます</p>
               </ThemedCardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1473,16 +1525,394 @@ export default function AdminPage() {
             </ThemedCard>
           </TabsContent>
 
-          <TabsContent value="community" className="space-y-6">
+          <TabsContent value="events" className="space-y-6">
             <ThemedCard className="shadow-lg">
               <ThemedCardHeader className="pb-4">
-                <h3 className="text-xl font-bold">掲示板管理</h3>
+                <h3 className="text-xl font-bold flex items-center gap-3">
+                  <Calendar className="w-6 h-6" style={{ color: currentTheme.primary[500] }} />
+                  イベント登録
+                </h3>
+                <p className="text-gray-600 mt-2">新しいイベントを作成し、一般ユーザーに公開します</p>
+              </ThemedCardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="eventTitle" className="text-sm font-medium">
+                      イベント名 *
+                    </Label>
+                    <Input
+                      id="eventTitle"
+                      placeholder="例：ユニ・チャーム協業イベント"
+                      className="h-12"
+                      value={eventForm.title}
+                      onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="eventCategory" className="text-sm font-medium">
+                      カテゴリー *
+                    </Label>
+                    <Select value={eventForm.category} onValueChange={(value) => setEventForm({ ...eventForm, category: value })}>
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="カテゴリーを選択" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="health">🏥 健康</SelectItem>
+                        <SelectItem value="sports">🏃 スポーツ</SelectItem>
+                        <SelectItem value="outdoor">🌲 アウトドア</SelectItem>
+                        <SelectItem value="education">📚 学習</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="eventDescription" className="text-sm font-medium">
+                    イベント説明 *
+                  </Label>
+                  <Input
+                    id="eventDescription"
+                    placeholder="例：愛犬の健康ケア体験会"
+                    className="h-12"
+                    value={eventForm.description}
+                    onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="eventDate" className="text-sm font-medium">
+                      開催日 *
+                    </Label>
+                    <Input
+                      id="eventDate"
+                      type="date"
+                      className="h-12"
+                      value={eventForm.date}
+                      onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="eventTime" className="text-sm font-medium">
+                      開催時間 *
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="14:00"
+                        className="h-12"
+                        value={eventForm.startTime}
+                        onChange={(e) => setEventForm({ ...eventForm, startTime: e.target.value })}
+                      />
+                      <span className="self-center">-</span>
+                      <Input
+                        placeholder="16:00"
+                        className="h-12"
+                        value={eventForm.endTime}
+                        onChange={(e) => setEventForm({ ...eventForm, endTime: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="eventLocation" className="text-sm font-medium">
+                      開催場所 *
+                    </Label>
+                    <Input
+                      id="eventLocation"
+                      placeholder="例：FC今治 里山ドッグラン"
+                      className="h-12"
+                      value={eventForm.location}
+                      onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="eventOrganizer" className="text-sm font-medium">
+                      主催者 *
+                    </Label>
+                    <Input
+                      id="eventOrganizer"
+                      placeholder="例：ユニ・チャーム × FC今治"
+                      className="h-12"
+                      value={eventForm.organizer}
+                      onChange={(e) => setEventForm({ ...eventForm, organizer: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="eventPrice" className="text-sm font-medium">
+                      参加料金
+                    </Label>
+                    <Select value={eventForm.price} onValueChange={(value) => setEventForm({ ...eventForm, price: value })}>
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="料金を選択" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="free">無料</SelectItem>
+                        <SelectItem value="1000">¥1,000</SelectItem>
+                        <SelectItem value="1500">¥1,500</SelectItem>
+                        <SelectItem value="2000">¥2,000</SelectItem>
+                        <SelectItem value="2500">¥2,500</SelectItem>
+                        <SelectItem value="3000">¥3,000</SelectItem>
+                        <SelectItem value="custom">その他（カスタム）</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="eventImage" className="text-sm font-medium">
+                      イベント画像
+                    </Label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                      <Camera className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-600">画像をアップロード</p>
+                      <ThemedButton variant="outline" size="sm" className="mt-2">
+                        <Plus className="w-4 h-4 mr-2" />
+                        画像を選択
+                      </ThemedButton>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="eventDetails" className="text-sm font-medium">
+                    詳細説明
+                  </Label>
+                  <Textarea
+                    id="eventDetails"
+                    placeholder="イベントの詳細な説明を入力してください（対象となる犬種、持ち物、注意事項など）"
+                    rows={4}
+                    value={eventForm.details}
+                    onChange={(e) => setEventForm({ ...eventForm, details: e.target.value })}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">特典</Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox" 
+                          id="trial-pack" 
+                          className="w-4 h-4"
+                          checked={eventForm.benefits.includes("trial-pack")}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEventForm({ ...eventForm, benefits: [...eventForm.benefits, "trial-pack"] })
+                            } else {
+                              setEventForm({ ...eventForm, benefits: eventForm.benefits.filter(b => b !== "trial-pack") })
+                            }
+                          }}
+                        />
+                        <Label htmlFor="trial-pack" className="text-sm">
+                          トライアル受取可
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox" 
+                          id="photo-service" 
+                          className="w-4 h-4"
+                          checked={eventForm.benefits.includes("photo-service")}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEventForm({ ...eventForm, benefits: [...eventForm.benefits, "photo-service"] })
+                            } else {
+                              setEventForm({ ...eventForm, benefits: eventForm.benefits.filter(b => b !== "photo-service") })
+                            }
+                          }}
+                        />
+                        <Label htmlFor="photo-service" className="text-sm">
+                          写真撮影サービス
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox" 
+                          id="gift" 
+                          className="w-4 h-4"
+                          checked={eventForm.benefits.includes("gift")}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEventForm({ ...eventForm, benefits: [...eventForm.benefits, "gift"] })
+                            } else {
+                              setEventForm({ ...eventForm, benefits: eventForm.benefits.filter(b => b !== "gift") })
+                            }
+                          }}
+                        />
+                        <Label htmlFor="gift" className="text-sm">
+                          記念品プレゼント
+                        </Label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">対象</Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox" 
+                          id="all-dogs" 
+                          className="w-4 h-4"
+                          checked={eventForm.target.includes("all-dogs")}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEventForm({ ...eventForm, target: [...eventForm.target, "all-dogs"] })
+                            } else {
+                              setEventForm({ ...eventForm, target: eventForm.target.filter(t => t !== "all-dogs") })
+                            }
+                          }}
+                        />
+                        <Label htmlFor="all-dogs" className="text-sm">
+                          全犬種対象
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox" 
+                          id="small-dogs" 
+                          className="w-4 h-4"
+                          checked={eventForm.target.includes("small-dogs")}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEventForm({ ...eventForm, target: [...eventForm.target, "small-dogs"] })
+                            } else {
+                              setEventForm({ ...eventForm, target: eventForm.target.filter(t => t !== "small-dogs") })
+                            }
+                          }}
+                        />
+                        <Label htmlFor="small-dogs" className="text-sm">
+                          小型犬のみ
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input 
+                          type="checkbox" 
+                          id="beginners" 
+                          className="w-4 h-4"
+                          checked={eventForm.target.includes("beginners")}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEventForm({ ...eventForm, target: [...eventForm.target, "beginners"] })
+                            } else {
+                              setEventForm({ ...eventForm, target: eventForm.target.filter(t => t !== "beginners") })
+                            }
+                          }}
+                        />
+                        <Label htmlFor="beginners" className="text-sm">
+                          初心者歓迎
+                        </Label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="eventStatus" className="text-sm font-medium">
+                      公開状態
+                    </Label>
+                    <Select value={eventForm.status} onValueChange={(value: "draft" | "published" | "archived") => setEventForm({ ...eventForm, status: value })}>
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="公開状態を選択" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">下書き</SelectItem>
+                        <SelectItem value="published">公開</SelectItem>
+                        <SelectItem value="archived">アーカイブ</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-6 border-t">
+                  <ThemedButton variant="primary" size="lg" className="flex-1" onClick={handleEventSubmit}>
+                    <Save className="w-5 h-5 mr-2" />
+                    イベントを保存
+                  </ThemedButton>
+                  <ThemedButton variant="outline" size="lg">
+                    <Eye className="w-5 h-5 mr-2" />
+                    プレビュー
+                  </ThemedButton>
+                </div>
+              </CardContent>
+            </ThemedCard>
+
+            <ThemedCard className="shadow-lg">
+              <ThemedCardHeader className="pb-4">
+                <h3 className="text-xl font-bold">登録済みイベント一覧</h3>
               </ThemedCardHeader>
               <CardContent>
-                <div className="text-center py-16">
-                  <MessageSquare className="w-16 h-16 mx-auto text-gray-400 mb-6" />
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-3">掲示板管理機能</h3>
-                  <p className="text-lg text-gray-600">投稿の管理、モデレーション機能を実装予定</p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-5 border rounded-xl hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <Calendar className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-lg">ユニ・チャーム協業イベント</p>
+                        <p className="text-gray-600 font-medium">愛犬の健康ケア体験会</p>
+                        <p className="text-sm text-gray-500">8月20日（火）14:00-16:00 • FC今治 里山ドッグラン</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Badge
+                        className="font-medium px-3 py-1 text-white"
+                        style={{ backgroundColor: currentTheme.primary[500] }}
+                      >
+                        公開中
+                      </Badge>
+                      <div className="flex gap-2">
+                        <ThemedButton variant="ghost" size="sm">
+                          <Eye className="w-5 h-5" />
+                        </ThemedButton>
+                        <ThemedButton variant="ghost" size="sm">
+                          <Edit className="w-5 h-5" />
+                        </ThemedButton>
+                        <ThemedButton variant="ghost" size="sm" className="text-red-600 hover:bg-red-50">
+                          <Trash2 className="w-5 h-5" />
+                        </ThemedButton>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-5 border rounded-xl hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <Trophy className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-lg">アジリティ体験会</p>
+                        <p className="text-gray-600 font-medium">初心者向けドッグスポーツ</p>
+                        <p className="text-sm text-gray-500">8月25日（日）10:00-12:00 • FC今治 里山ドッグラン</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Badge
+                        className="font-medium px-3 py-1 text-white"
+                        style={{ backgroundColor: currentTheme.primary[500] }}
+                      >
+                        公開中
+                      </Badge>
+                      <div className="flex gap-2">
+                        <ThemedButton variant="ghost" size="sm">
+                          <Eye className="w-5 h-5" />
+                        </ThemedButton>
+                        <ThemedButton variant="ghost" size="sm">
+                          <Edit className="w-5 h-5" />
+                        </ThemedButton>
+                        <ThemedButton variant="ghost" size="sm" className="text-red-600 hover:bg-red-50">
+                          <Trash2 className="w-5 h-5" />
+                        </ThemedButton>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </ThemedCard>

@@ -9,10 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ThemedCard, CardContent } from "@/components/themed-card"
 import { ThemedButton } from "@/components/themed-button"
 import { useTheme } from "@/contexts/theme-context"
+import BottomNavigation from "@/components/bottom-navigation"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function MyPage() {
   const router = useRouter()
   const { currentTheme } = useTheme()
+  const { userProfile, isLoading } = useAuth()
   const [activeTab, setActiveTab] = useState("profile")
 
   const profileItems = [
@@ -36,15 +39,7 @@ export default function MyPage() {
     },
   ]
 
-  const recordItems = [
-    {
-      icon: FileText,
-      title: "記録",
-      description: "保育記録の確認・管理",
-      href: "/mypage/contact-book",
-      badge: "更新あり",
-    },
-  ]
+
 
   const settingsItems = [
     {
@@ -65,15 +60,11 @@ export default function MyPage() {
   ]
 
   return (
+    <>
     <div className="max-w-md mx-auto">
-      <div
-        className="min-h-screen"
-        style={{
-          background: `linear-gradient(to bottom, ${currentTheme.primary[50]}, white)`,
-        }}
-      >
+      <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b" style={{ borderColor: currentTheme.primary[100] }}>
+      <header className="bg-white border-b" style={{ borderColor: 'rgb(0, 50, 115)' }}>
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -95,43 +86,56 @@ export default function MyPage() {
         {/* User Profile Card */}
         <ThemedCard variant="primary" className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex items-center space-x-4">
-              <Avatar className="w-16 h-16">
-                <AvatarImage src="/placeholder.svg?height=64&width=64" />
-                <AvatarFallback
-                  style={{ backgroundColor: currentTheme.primary[100], color: currentTheme.primary[700] }}
-                  className="text-lg"
-                >
-                  田
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold text-gray-800">田中 太郎</h2>
-                <p className="text-sm text-gray-600">ポチくんの飼い主</p>
-                <div className="flex items-center space-x-2 mt-2">
-                  <Badge
-                    style={{ backgroundColor: currentTheme.accent[100], color: currentTheme.accent[700] }}
-                    className="text-xs"
-                  >
-                    プレミアム会員
-                  </Badge>
-                  <Badge
-                    style={{ backgroundColor: currentTheme.primary[100], color: currentTheme.primary[700] }}
-                    className="text-xs"
-                  >
-                    利用歴2年
-                  </Badge>
+            {isLoading ? (
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-gray-200 rounded-full animate-pulse"></div>
+                <div className="flex-1">
+                  <div className="h-5 bg-gray-200 rounded animate-pulse mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3 mb-2"></div>
+                  <div className="flex space-x-2">
+                    <div className="h-6 bg-gray-200 rounded animate-pulse w-20"></div>
+                    <div className="h-6 bg-gray-200 rounded animate-pulse w-16"></div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : userProfile ? (
+              <div className="flex items-center space-x-4">
+                <Avatar className="w-16 h-16">
+                  <AvatarImage src={userProfile.user.avatar || "/placeholder.svg?height=64&width=64"} />
+                  <AvatarFallback
+                    style={{ backgroundColor: currentTheme.primary[100], color: currentTheme.primary[700] }}
+                    className="text-lg"
+                  >
+                    {userProfile.user.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <h2 className="text-lg font-semibold text-gray-800">{userProfile.user.name}</h2>
+                  <p className="text-sm text-gray-600">
+                    {userProfile.primaryDog?.name ? `${userProfile.primaryDog.name}の飼い主` : '愛犬を登録してください'}
+                  </p>
+
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600">ユーザー情報を取得できませんでした</p>
+                <button 
+                  onClick={() => router.push("/login")}
+                  className="mt-2 text-blue-600 underline"
+                >
+                  ログインしてください
+                </button>
+              </div>
+            )}
           </CardContent>
         </ThemedCard>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">プロフィール</TabsTrigger>
-            <TabsTrigger value="records">記録</TabsTrigger>
             <TabsTrigger value="settings">設定</TabsTrigger>
             <TabsTrigger value="notifications">通知</TabsTrigger>
           </TabsList>
@@ -162,41 +166,7 @@ export default function MyPage() {
             ))}
           </TabsContent>
 
-          <TabsContent value="records" className="space-y-4 mt-6">
-            {recordItems.map((item, index) => (
-              <ThemedCard
-                key={index}
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => router.push(item.href)}
-              >
-                <CardContent className="flex items-center justify-between p-4">
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: currentTheme.accent[100] }}
-                    >
-                      <item.icon className="w-5 h-5" style={{ color: currentTheme.accent[600] }} />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-800">{item.title}</h3>
-                      <p className="text-sm text-gray-600">{item.description}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {item.badge && (
-                      <Badge
-                        style={{ backgroundColor: currentTheme.accent[100], color: currentTheme.accent[700] }}
-                        className="text-xs"
-                      >
-                        {item.badge}
-                      </Badge>
-                    )}
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
-                  </div>
-                </CardContent>
-              </ThemedCard>
-            ))}
-          </TabsContent>
+
 
           <TabsContent value="settings" className="space-y-4 mt-6">
             {settingsItems.map((item, index) => (
@@ -253,5 +223,7 @@ export default function MyPage() {
       </div>
     </div>
     </div>
+    <BottomNavigation />
+    </>
   )
 }

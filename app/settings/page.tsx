@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { PageHeader } from "@/components/page-header"
+import BottomNavigation from "@/components/bottom-navigation"
 import { Bell, Shield, Palette, HelpCircle, LogOut, ChevronRight } from "lucide-react"
 import { useTheme } from "@/contexts/theme-context"
 
@@ -27,8 +28,9 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="max-w-md mx-auto bg-white">
+    <>
+      <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="max-w-md mx-auto bg-white">
         <PageHeader title="設定" subtitle="アプリの設定を管理" showBackButton />
 
         <div className="p-4 space-y-6">
@@ -155,5 +157,7 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+    <BottomNavigation />
+    </>
   )
 }

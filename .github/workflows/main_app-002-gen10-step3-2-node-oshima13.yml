@@ -63,7 +63,12 @@ jobs:
         echo "NODE_PATH: $NODE_PATH"
         export NODE_PATH="$PWD:$NODE_PATH"
         npm run build
+        echo "=== Build completed ==="
         ls -la .next/ || echo "No .next directory found"
+        echo "=== Standalone build check ==="
+        ls -la .next/standalone/ || echo "No standalone directory found"
+        echo "=== Static files check ==="
+        ls -la .next/standalone/public/ || echo "No public directory in standalone"
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2

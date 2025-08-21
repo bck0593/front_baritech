@@ -2,9 +2,10 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-import { AuthService } from "@/lib/api-services"
+import { AuthService, DogService, OwnerService } from "@/lib/api-services"
 import { tokenManager } from "@/lib/api-client"
 import { USE_MOCK_DATA } from "@/lib/api-config"
+import { Dog, Owner } from "@/lib/types"
 
 export type UserRole = "user" | "admin" | "super_admin"
 
@@ -16,10 +17,19 @@ export interface User {
   avatar?: string
 }
 
+export interface UserProfile {
+  user: User
+  owner?: Owner
+  dogs: Dog[]
+  primaryDog?: Dog
+}
+
 interface AuthContextType {
   user: User | null
+  userProfile: UserProfile | null
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
+  refreshProfile: () => Promise<void>
   isLoading: boolean
   hasPermission: (requiredRole: UserRole) => boolean
   isAuthenticated: boolean
@@ -39,7 +49,7 @@ const mockUsers: (User & { password: string })[] = [
   {
     id: "1",
     name: "田中太郎",
-    email: "user@example.com",
+    email: "tanaka@example.com", // モックオーナーと同じメール
     role: "user",
     password: "password123",
   },
@@ -61,14 +71,59 @@ const mockUsers: (User & { password: string })[] = [
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+
+  // ユーザープロファイルを取得
+  const refreshProfile = async () => {
+    if (!user) {
+      setUserProfile(null)
+      return
+    }
+
+    try {
+      // オーナー情報を取得（ユーザーIDでオーナーを検索）
+      const ownersResponse = await OwnerService.getOwners({ q: user.email })
+      let owner: Owner | undefined
+      
+      if (ownersResponse.success && ownersResponse.data) {
+        const owners = Array.isArray(ownersResponse.data) ? ownersResponse.data : (ownersResponse.data as any).items || []
+        owner = owners.find((o: Owner) => o.email === user.email)
+      }
+
+      // 犬情報を取得
+      let dogs: Dog[] = []
+      if (owner) {
+        const dogsResponse = await DogService.getDogsByOwner(owner.id)
+        if (dogsResponse.success && dogsResponse.data) {
+          dogs = dogsResponse.data
+        }
+      }
+
+      // プライマリドッグ（最初の犬）を設定
+      const primaryDog = dogs.length > 0 ? dogs[0] : undefined
+
+      const profile: UserProfile = {
+        user,
+        owner,
+        dogs,
+        primaryDog
+      }
+
+      setUserProfile(profile)
+    } catch (error) {
+      console.error('Error refreshing profile:', error)
+      setUserProfile({ user, dogs: [] })
+    }
+  }
 
   useEffect(() => {
     // ローカルストレージから認証情報を復元
     const savedUser = localStorage.getItem("auth_user")
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser))
+        const parsedUser = JSON.parse(savedUser)
+        setUser(parsedUser)
       } catch (error) {
         console.error("Failed to parse saved user:", error)
         localStorage.removeItem("auth_user")
@@ -76,6 +131,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     setIsLoading(false)
   }, [])
+
+  // ユーザーが変更されたときにプロファイルを更新
+  useEffect(() => {
+    if (user) {
+      refreshProfile()
+    } else {
+      setUserProfile(null)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true)
@@ -135,6 +200,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     setUser(null)
+    setUserProfile(null)
     tokenManager.clearToken()
     if (typeof window !== 'undefined') {
       localStorage.removeItem("auth_user")
@@ -151,8 +217,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{ 
       user, 
+      userProfile,
       login, 
       logout, 
+      refreshProfile,
       isLoading, 
       hasPermission, 
       isAuthenticated 

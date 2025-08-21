@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { PageHeader } from "@/components/page-header"
+import BottomNavigation from "@/components/bottom-navigation"
 import { Search, ChevronDown, ChevronUp, HelpCircle, Phone, Mail } from "lucide-react"
 import { useTheme } from "@/contexts/theme-context"
 
@@ -66,8 +67,9 @@ export default function HelpPage() {
   const categories = Array.from(new Set(faqs.map((faq) => faq.category)))
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="max-w-md mx-auto bg-white">
+    <>
+      <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="max-w-md mx-auto bg-white">
         <PageHeader title="ヘルプ・FAQ" subtitle="よくある質問と回答" showBackButton />
 
         <div className="p-4 space-y-6">
@@ -152,5 +154,7 @@ export default function HelpPage() {
         </div>
       </div>
     </div>
+    <BottomNavigation />
+    </>
   )
 }

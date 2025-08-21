@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import BottomNavigation from "@/components/bottom-navigation"
 import {
   Heart,
   MessageCircle,
@@ -14,7 +15,6 @@ import {
   Plus,
   Hash,
   CheckCircle,
-  TrendingUp,
   ArrowLeft,
 } from "lucide-react"
 import { ThemedCard, ThemedCardHeader, CardContent, CardTitle } from "@/components/themed-card"
@@ -172,14 +172,12 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
-      <div
-        className="min-h-screen pb-20"
-        style={{
-          background: `linear-gradient(to bottom, ${currentTheme.primary[50]}, white, ${currentTheme.primary[100]})`,
-        }}
-      >
-      <header className="bg-white shadow-sm border-b" style={{ borderColor: currentTheme.primary[100] }}>
+    <>
+      <div className="max-w-md mx-auto">
+        <div
+          className="min-h-screen pb-20 bg-white"
+        >
+      <header className="bg-white border-b" style={{ borderColor: 'rgb(0, 50, 115)' }}>
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center space-x-3 mb-4">
             <button onClick={() => router.back()}>
@@ -267,34 +265,9 @@ export default function CommunityPage() {
       </header>
 
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        <ThemedCard variant="accent">
-          <ThemedCardHeader variant="accent">
-            <CardTitle className="text-base flex items-center">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              人気のタグ
-            </CardTitle>
-          </ThemedCardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {popularTags.map((tag) => (
-                <ThemedButton
-                  key={tag}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-6"
-                  onClick={() => setSearchQuery(tag)}
-                >
-                  <Hash className="w-3 h-3 mr-1" />
-                  {tag}
-                </ThemedButton>
-              ))}
-            </div>
-          </CardContent>
-        </ThemedCard>
-
         <div className="space-y-4">
           {filteredPosts.map((post) => (
-            <ThemedCard key={post.id} className="hover:shadow-md transition-shadow">
+            <ThemedCard key={post.id} className="transition-colors">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
                   <Avatar className="w-10 h-10">
@@ -329,9 +302,9 @@ export default function CommunityPage() {
                       {post.tags.map((tag) => (
                         <Badge
                           key={tag}
-                          variant="outline"
-                          className="text-xs"
-                          style={{ borderColor: currentTheme.accent[200], color: currentTheme.accent[600] }}
+                          variant="secondary"
+                          className="text-xs border"
+                          style={{ backgroundColor: '#eeeeee', color: 'rgb(0, 50, 115)', borderColor: '#e0e0e0' }}
                         >
                           #{tag}
                         </Badge>
@@ -422,5 +395,7 @@ export default function CommunityPage() {
       </Dialog>
     </div>
     </div>
+    <BottomNavigation />
+    </>
   )
 }

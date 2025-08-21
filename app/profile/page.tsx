@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { PageHeader } from "@/components/page-header"
+import BottomNavigation from "@/components/bottom-navigation"
 import { User, Camera, Save } from "lucide-react"
 import { useTheme } from "@/contexts/theme-context"
 
@@ -32,8 +33,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="max-w-md mx-auto bg-white">
+    <>
+      <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="max-w-md mx-auto bg-white">
         <PageHeader title="プロフィール" subtitle="アカウント情報の管理" showBackButton />
 
         <div className="p-4 space-y-6">
@@ -147,5 +149,7 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+    <BottomNavigation />
+    </>
   )
 }

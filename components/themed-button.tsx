@@ -6,7 +6,7 @@ import type { ReactNode } from "react"
 
 interface ThemedButtonProps {
   children: ReactNode
-  variant?: "primary" | "secondary" | "outline" | "ghost"
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "tag"
   size?: "sm" | "default" | "lg"
   onClick?: () => void
   disabled?: boolean
@@ -34,8 +34,8 @@ export function ThemedButton({
         }
       case "secondary":
         return {
-          backgroundColor: 'var(--pantone-yellow-500)',
-          borderColor: 'var(--pantone-yellow-500)',
+          backgroundColor: 'rgb(0, 50, 115)',
+          borderColor: 'rgb(0, 50, 115)',
           color: 'var(--pantone-blue-900)',
           fontWeight: '600',
           '--tw-shadow': '0 2px 4px rgba(255, 235, 0, 0.2)',
@@ -47,6 +47,13 @@ export function ThemedButton({
           color: 'var(--pantone-blue-600)',
           borderWidth: '2px',
         }
+      case "tag":
+        return {
+          backgroundColor: '#eeeeee', // gray
+          borderColor: '#e0e0e0',
+          color: 'rgb(0, 50, 115)', // PANTONE 288C
+          borderWidth: '1px',
+        }
       default:
         return {}
     }
@@ -54,7 +61,14 @@ export function ThemedButton({
 
   return (
     <Button
-      variant={variant === "primary" || variant === "secondary" || variant === "outline" ? "default" : variant}
+      variant={
+        variant === "primary" ||
+        variant === "secondary" ||
+        variant === "outline" ||
+        variant === "tag"
+          ? "default"
+          : variant
+      }
       size={size}
       onClick={onClick}
       disabled={disabled}

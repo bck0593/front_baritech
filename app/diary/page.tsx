@@ -9,6 +9,7 @@ import { ThemedCard, ThemedCardHeader, CardContent, CardTitle } from "@/componen
 import { ThemedButton } from "@/components/themed-button"
 import { useTheme } from "@/contexts/theme-context"
 import { Textarea } from "@/components/ui/textarea"
+import BottomNavigation from "@/components/bottom-navigation"
 
 export default function DiaryPage() {
   const router = useRouter()
@@ -110,15 +111,11 @@ export default function DiaryPage() {
   }
 
   return (
+    <>
     <div className="max-w-md mx-auto">
-      <div
-        className="min-h-screen"
-        style={{
-          background: `linear-gradient(to bottom, ${currentTheme.primary[50]}, white, ${currentTheme.primary[100]})`,
-        }}
-      >
+      <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b" style={{ borderColor: currentTheme.primary[100] }}>
+      <header className="bg-white border-b" style={{ borderColor: 'rgb(0, 50, 115)' }}>
         <div className="px-4 py-4">
           <div className="flex items-center space-x-3">
             <button onClick={() => router.back()}>
@@ -138,7 +135,7 @@ export default function DiaryPage() {
           <CardContent className="pt-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-medium text-gray-800">日付を選択</h3>
-              <Calendar className="w-4 h-4" style={{ color: currentTheme.accent[600] }} />
+              <Calendar className="w-4 h-4" style={{ color: 'rgb(0, 50, 115)' }} />
             </div>
             <div className="flex space-x-2 overflow-x-auto pb-2">
               {diaryEntries.map((entry) => {
@@ -150,8 +147,8 @@ export default function DiaryPage() {
                     onClick={() => setSelectedDate(entry.date)}
                     className="flex-shrink-0 p-3 rounded-lg text-center transition-colors"
                     style={{
-                      backgroundColor: isSelected ? currentTheme.accent[500] : currentTheme.accent[100],
-                      color: isSelected ? "white" : currentTheme.accent[700],
+                      backgroundColor: isSelected ? 'rgb(0, 50, 115)' : 'rgb(224, 242, 254)',
+                      color: isSelected ? "white" : 'rgb(0, 50, 115)',
                     }}
                   >
                     <div className="text-xs font-medium">
@@ -267,6 +264,24 @@ export default function DiaryPage() {
           </CardContent>
         </ThemedCard>
 
+        {/* 園での様子リンク（ThemedCardで統一） */}
+        <ThemedCard variant="accent">
+          <ThemedCardHeader variant="accent">
+            <CardTitle className="text-base flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-3.5A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+              園での様子
+            </CardTitle>
+          </ThemedCardHeader>
+          <CardContent>
+            <a
+              href="/mypage/contact-book"
+              className="block w-full text-center py-2 rounded-md bg-blue-100 text-blue-700 font-medium hover:bg-blue-200 transition"
+            >
+              保育士の記録
+            </a>
+          </CardContent>
+        </ThemedCard>
+
         {/* Messages */}
         <ThemedCard variant="accent">
           <ThemedCardHeader variant="accent">
@@ -315,5 +330,7 @@ export default function DiaryPage() {
       </div>
     </div>
     </div>
+    <BottomNavigation />
+    </>
   )
 }

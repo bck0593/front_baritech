@@ -11,10 +11,22 @@ async function copyStatic() {
     const staticSrc = path.join(process.cwd(), '.next/static');
     const staticDest = path.join(standaloneDir, '.next/static');
     
+    // スタンドアロンディレクトリが存在するか確認
+    if (!(await fs.pathExists(standaloneDir))) {
+      console.log('❌ スタンドアロンビルドが見つかりません。next.config.mjsでoutput: "standalone"が設定されているか確認してください。');
+      return;
+    }
+    
     // Publicディレクトリをコピー
     if (await fs.pathExists(publicSrc)) {
       await fs.copy(publicSrc, publicDest, { overwrite: true });
       console.log('✅ publicディレクトリをコピーしました');
+      
+      // 重要なファイルが存在するか確認
+      const logoPath = path.join(publicDest, 'imabarione.png');
+      if (await fs.pathExists(logoPath)) {
+        console.log('✅ ロゴファイル(imabarione.png)をコピーしました');
+      }
       
       // 画像ファイルが正しくコピーされたか確認
       const imagesSrc = path.join(publicSrc, 'images');
@@ -22,7 +34,7 @@ async function copyStatic() {
       if (await fs.pathExists(imagesSrc)) {
         await fs.copy(imagesSrc, imagesDest, { overwrite: true });
         const imageFiles = await fs.readdir(imagesDest);
-        console.log(`✅ ${imageFiles.length}個の画像ファイルをコピーしました:`, imageFiles.slice(0, 5).join(', '));
+        console.log(`✅ ${imageFiles.length}個の画像ファイルをコピーしました`);
       }
     }
     
@@ -39,11 +51,6 @@ async function copyStatic() {
     } else {
       console.log('❌ server.jsが見つかりません');
     }
-    
-    // ファイル構造を表示
-    console.log('\n📁 Standalone ディレクトリ構造:');
-    const files = await fs.readdir(standaloneDir);
-    files.forEach(file => console.log(`  - ${file}`));
     
     console.log('🎉 静的ファイルのコピーが完了しました！');
   } catch (error) {

@@ -55,7 +55,7 @@ interface ContactEntry {
 const moodOptions = [
   { value: "excellent", label: "とても元気", color: "bg-green-500" },
   { value: "good", label: "元気", color: "bg-blue-500" },
-  { value: "normal", label: "普通", color: "bg-yellow-500" },
+  { value: "normal", label: "普通", color: "rgb(0, 50, 115)" },
   { value: "tired", label: "少し疲れ気味", color: "bg-orange-500" },
   { value: "unwell", label: "体調不良", color: "bg-red-500" },
 ]

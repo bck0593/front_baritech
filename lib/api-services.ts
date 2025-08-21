@@ -465,6 +465,70 @@ export class BookingService {
 
     return apiClient.delete<null>(API_CONFIG.ENDPOINTS.BOOKINGS.DELETE(id))
   }
+
+  // 今日の予約を取得
+  static async getTodayBookings(): Promise<ApiResponse<Booking[]>> {
+    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+    
+    if (USE_MOCK_DATA) {
+      const todayBookings = mockBookings.filter(booking => {
+        // booking_dateがYYYY-MM-DD形式の場合の比較
+        const bookingDate = booking.booking_date.split('T')[0]
+        return bookingDate === today
+      })
+      return createMockResponse(todayBookings)
+    }
+
+    return this.getBookings({ date: today }).then(response => {
+      if (response.success && response.data) {
+        // PaginatedResponseの場合はitemsプロパティ、通常のApiResponseの場合はdataを使用
+        const bookings = Array.isArray(response.data) ? response.data : (response.data as any).items || []
+        return createMockResponse(bookings)
+      }
+      return createMockResponse([])
+    })
+  }
+
+  // 次回の予約を取得
+  static async getNextBooking(): Promise<ApiResponse<Booking | null>> {
+    const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+    
+    if (USE_MOCK_DATA) {
+      // 今日以降の予約を取得し、日付順でソート
+      const futureBookings = mockBookings
+        .filter(booking => {
+          const bookingDate = booking.booking_date.split('T')[0]
+          return bookingDate >= today
+        })
+        .sort((a, b) => {
+          const dateA = a.booking_date.split('T')[0]
+          const dateB = b.booking_date.split('T')[0]
+          return dateA.localeCompare(dateB)
+        })
+      
+      const nextBooking = futureBookings.length > 0 ? futureBookings[0] : null
+      return createMockResponse(nextBooking)
+    }
+
+    // 実際のAPIでは今日以降の最初の予約を取得
+    return this.getBookings().then(response => {
+      if (response.success && response.data) {
+        const bookings = Array.isArray(response.data) ? response.data : (response.data as any).items || []
+        // クライアントサイドで今日以降の予約をフィルタリング
+        const futureBookings = (bookings as Booking[]).filter((booking: Booking) => {
+          const bookingDate = booking.booking_date.split('T')[0]
+          return bookingDate >= today
+        }).sort((a: Booking, b: Booking) => {
+          const dateA = a.booking_date.split('T')[0]
+          const dateB = b.booking_date.split('T')[0]
+          return dateA.localeCompare(dateB)
+        })
+        const nextBooking = futureBookings.length > 0 ? futureBookings[0] : null
+        return createMockResponse(nextBooking)
+      }
+      return createMockResponse(null)
+    })
+  }
 }
 
 // その他のサービスクラス（DiaryService, HealthService, MealService等）は
@@ -548,5 +612,236 @@ export class MasterDataService {
     }
 
     return apiClient.get<EvaluationOption[]>(API_CONFIG.ENDPOINTS.SETTINGS.EVALUATION_OPTIONS)
+  }
+}
+
+// イベント関連の型定義
+export interface Event {
+  id: string
+  title: string
+  category: string
+  description: string
+  date: string
+  startTime: string
+  endTime: string
+  location: string
+  organizer: string
+  price: string
+  customPrice?: string
+  image?: string
+  details: string
+  benefits: string[]
+  target: string[]
+  status: 'draft' | 'published' | 'archived'
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateEventRequest {
+  title: string
+  category: string
+  description: string
+  date: string
+  startTime: string
+  endTime: string
+  location: string
+  organizer: string
+  price: string
+  customPrice?: string
+  image?: string
+  details: string
+  benefits: string[]
+  target: string[]
+  status: 'draft' | 'published' | 'archived'
+}
+
+export interface UpdateEventRequest extends Partial<CreateEventRequest> {}
+
+export interface EventSearchParams {
+  category?: string
+  status?: 'draft' | 'published' | 'archived'
+  startDate?: string
+  endDate?: string
+  search?: string
+  page?: number
+  limit?: number
+}
+
+// イベントサービス
+export class EventService {
+  static async getEvents(params?: EventSearchParams): Promise<PaginatedResponse<Event>> {
+    if (USE_MOCK_DATA) {
+      // モックイベントデータ
+      const mockEvents: Event[] = [
+        {
+          id: '1',
+          title: 'ユニ・チャーム協業イベント',
+          category: 'health',
+          description: '愛犬の健康ケア体験会',
+          date: '2024-08-20',
+          startTime: '14:00',
+          endTime: '16:00',
+          location: 'FC今治 里山ドッグラン',
+          organizer: 'ユニ・チャーム × FC今治',
+          price: 'free',
+          image: '/images/fcimabari_20240621104218_7.jpg',
+          details: 'ペットの健康管理について学ぶ体験会です。',
+          benefits: ['trial-pack'],
+          target: ['all-dogs', 'beginners'],
+          status: 'published',
+          createdAt: '2024-08-15T10:00:00Z',
+          updatedAt: '2024-08-15T10:00:00Z'
+        },
+        {
+          id: '2',
+          title: 'アジリティ体験会',
+          category: 'sports',
+          description: '初心者向けドッグスポーツ',
+          date: '2024-08-25',
+          startTime: '10:00',
+          endTime: '12:00',
+          location: 'FC今治 里山ドッグラン',
+          organizer: 'FC今治',
+          price: '2000',
+          details: 'アジリティの基本を学ぶ初心者向けの体験会です。',
+          benefits: ['photo-service'],
+          target: ['all-dogs', 'beginners'],
+          status: 'published',
+          createdAt: '2024-08-15T11:00:00Z',
+          updatedAt: '2024-08-15T11:00:00Z'
+        },
+        {
+          id: '3',
+          title: 'しまなみ散歩会',
+          category: 'outdoor',
+          description: '愛犬と楽しむ自然散策',
+          date: '2024-08-28',
+          startTime: '09:00',
+          endTime: '11:00',
+          location: 'しまなみ海道周辺',
+          organizer: '今治市観光協会',
+          price: '1500',
+          details: 'しまなみの自然を愛犬と一緒に楽しみましょう。',
+          benefits: ['gift'],
+          target: ['all-dogs'],
+          status: 'published',
+          createdAt: '2024-08-15T12:00:00Z',
+          updatedAt: '2024-08-15T12:00:00Z'
+        },
+        {
+          id: '4',
+          title: 'ペット防災セミナー',
+          category: 'education',
+          description: 'もしもの時に備えて',
+          date: '2024-09-03',
+          startTime: '19:00',
+          endTime: '20:30',
+          location: '今治市民館',
+          organizer: '今治市役所',
+          price: 'free',
+          details: 'ペットと一緒の防災について学びます。',
+          benefits: [],
+          target: ['all-dogs'],
+          status: 'published',
+          createdAt: '2024-08-15T13:00:00Z',
+          updatedAt: '2024-08-15T13:00:00Z'
+        }
+      ]
+
+      // フィルタリング
+      let filteredEvents = mockEvents
+      if (params?.category) {
+        filteredEvents = filteredEvents.filter(event => event.category === params.category)
+      }
+      if (params?.status) {
+        filteredEvents = filteredEvents.filter(event => event.status === params.status)
+      }
+      if (params?.search) {
+        const searchLower = params.search.toLowerCase()
+        filteredEvents = filteredEvents.filter(event => 
+          event.title.toLowerCase().includes(searchLower) ||
+          event.description.toLowerCase().includes(searchLower) ||
+          event.organizer.toLowerCase().includes(searchLower)
+        )
+      }
+
+      return createMockPaginatedResponse(filteredEvents, params?.page, params?.limit)
+    }
+
+    const queryParams = new URLSearchParams()
+    if (params?.category) queryParams.append('category', params.category)
+    if (params?.status) queryParams.append('status', params.status)
+    if (params?.startDate) queryParams.append('startDate', params.startDate)
+    if (params?.endDate) queryParams.append('endDate', params.endDate)
+    if (params?.search) queryParams.append('search', params.search)
+    if (params?.page) queryParams.append('page', params.page.toString())
+    if (params?.limit) queryParams.append('limit', params.limit.toString())
+
+    const response = await apiClient.get<Event[]>(
+      `${API_CONFIG.ENDPOINTS.EVENTS.BASE}?${queryParams.toString()}`
+    )
+    // ApiResponseをPaginatedResponseに変換
+    return {
+      success: true,
+      data: response.data || [],
+      pagination: {
+        page: params?.page || 1,
+        limit: params?.limit || 10,
+        total: response.data?.length || 0,
+        totalPages: Math.ceil((response.data?.length || 0) / (params?.limit || 10))
+      }
+    }
+  }
+
+  static async getEvent(id: string): Promise<ApiResponse<Event>> {
+    if (USE_MOCK_DATA) {
+      const event = (await this.getEvents()).data?.find(e => e.id === id)
+      if (!event) {
+        throw new Error(`Event with id ${id} not found`)
+      }
+      return createMockResponse(event)
+    }
+
+    return apiClient.get<Event>(`${API_CONFIG.ENDPOINTS.EVENTS.BASE}/${id}`)
+  }
+
+  static async createEvent(data: CreateEventRequest): Promise<ApiResponse<Event>> {
+    if (USE_MOCK_DATA) {
+      const newEvent: Event = {
+        id: Math.random().toString(36).substring(7),
+        ...data,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      return createMockResponse(newEvent)
+    }
+
+    return apiClient.post<Event>(API_CONFIG.ENDPOINTS.EVENTS.BASE, data)
+  }
+
+  static async updateEvent(id: string, data: UpdateEventRequest): Promise<ApiResponse<Event>> {
+    if (USE_MOCK_DATA) {
+      const existingEvent = (await this.getEvent(id)).data
+      if (!existingEvent) {
+        throw new Error(`Event with id ${id} not found`)
+      }
+      
+      const updatedEvent: Event = {
+        ...existingEvent,
+        ...data,
+        updatedAt: new Date().toISOString()
+      }
+      return createMockResponse(updatedEvent)
+    }
+
+    return apiClient.put<Event>(`${API_CONFIG.ENDPOINTS.EVENTS.BASE}/${id}`, data)
+  }
+
+  static async deleteEvent(id: string): Promise<ApiResponse<void>> {
+    if (USE_MOCK_DATA) {
+      return createMockResponse(undefined)
+    }
+
+    return apiClient.delete<void>(`${API_CONFIG.ENDPOINTS.EVENTS.BASE}/${id}`)
   }
 }

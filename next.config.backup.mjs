@@ -2,8 +2,7 @@
 
 const nextConfig = {
   reactStrictMode: false,
-  swcMinify: true,
-  output: 'standalone',
+  swcMinify: false,
   
   eslint: {
     ignoreDuringBuilds: true,
@@ -15,11 +14,7 @@ const nextConfig = {
     unoptimized: true,
   },
   
-  experimental: {
-    outputFileTracingRoot: undefined,
-  },
-  
-  webpack: (config, { isServer, dev }) => {
+  webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
         fs: false,
@@ -27,12 +22,6 @@ const nextConfig = {
         os: false,
       }
     }
-    
-    // Webpackキャッシュを無効化（Windowsでの権限問題回避）
-    if (dev) {
-      config.cache = false
-    }
-    
     return config
   }
 }
