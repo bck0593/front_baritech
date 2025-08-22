@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { ThemedCard, ThemedCardHeader, CardContent, CardTitle } from "@/components/themed-card"
 import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/page-header"
-import { Calendar, CreditCard, Check } from "lucide-react"
+import { Calendar, CreditCard, Check, Info, User } from "lucide-react"
 import { useTheme } from "@/contexts/theme-context"
 import BottomNavigation from "@/components/bottom-navigation"
 
@@ -43,7 +43,7 @@ export default function BookingConfirmPage() {
             <ThemedCard>
               <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                  <Calendar className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                   予約内容
                 </CardTitle>
               </ThemedCardHeader>
@@ -74,7 +74,7 @@ export default function BookingConfirmPage() {
             <ThemedCard>
               <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                  <CreditCard className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                   料金
                 </CardTitle>
               </ThemedCardHeader>
@@ -85,6 +85,20 @@ export default function BookingConfirmPage() {
                 </div>
               </CardContent>
             </ThemedCard>
+
+            {bookingData.notes && (
+              <ThemedCard>
+                <ThemedCardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Info className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
+                    備考
+                  </CardTitle>
+                </ThemedCardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">{bookingData.notes}</p>
+                </CardContent>
+              </ThemedCard>
+            )}
 
             <div className="space-y-3">
               <Button

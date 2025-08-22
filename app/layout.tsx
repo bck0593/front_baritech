@@ -10,6 +10,10 @@ const inter = Inter({
   subsets: ["latin"],
   display: 'swap',
   preload: true,
+  // フォント最適化
+  variable: '--font-inter',
+  fallback: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+  adjustFontFallback: false,
 })
 
 export const metadata: Metadata = {

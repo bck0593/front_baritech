@@ -163,7 +163,7 @@ export default function ServiceDetailPage() {
         <ThemedCard>
           <ThemedCardHeader>
             <CardTitle className="text-base flex items-center">
-              <Star className="w-4 h-4 mr-2" style={{ color: currentTheme.accent[600] }} />
+              <Star className="w-4 h-4 mr-2" style={{ color: 'rgb(255, 235, 0)' }} />
               サービス内容
             </CardTitle>
           </ThemedCardHeader>
@@ -183,7 +183,7 @@ export default function ServiceDetailPage() {
         <ThemedCard>
           <ThemedCardHeader>
             <CardTitle className="text-base flex items-center">
-              <Calendar className="w-4 h-4 mr-2" style={{ color: 'rgb(0, 50, 115)' }} />
+              <Calendar className="w-4 h-4 mr-2" style={{ color: 'rgb(255, 235, 0)' }} />
               日付を選択
             </CardTitle>
           </ThemedCardHeader>
@@ -214,7 +214,7 @@ export default function ServiceDetailPage() {
           <ThemedCard variant="accent">
             <ThemedCardHeader variant="accent">
               <CardTitle className="text-base flex items-center">
-                <Users className="w-4 h-4 mr-2" />
+                <Users className="w-4 h-4 mr-2" style={{ color: 'rgb(255, 235, 0)' }} />
                 {availableDates.find((d) => d.value === selectedDate)?.display}の空き状況
               </CardTitle>
             </ThemedCardHeader>
@@ -255,7 +255,7 @@ export default function ServiceDetailPage() {
           <ThemedCard>
             <ThemedCardHeader>
               <CardTitle className="text-base flex items-center">
-                <Clock className="w-4 h-4 mr-2" style={{ color: currentTheme.accent[600] }} />
+                <Clock className="w-4 h-4 mr-2" style={{ color: 'rgb(255, 235, 0)' }} />
                 時間を選択
               </CardTitle>
             </ThemedCardHeader>
@@ -265,13 +265,15 @@ export default function ServiceDetailPage() {
                   <button
                     key={time}
                     onClick={() => setSelectedTime(time)}
-                    className="p-3 rounded-lg text-sm font-medium transition-colors"
+                    className="p-3 rounded-lg text-center transition-colors"
                     style={{
-                      backgroundColor: selectedTime === time ? currentTheme.accent[500] : currentTheme.accent[100],
-                      color: selectedTime === time ? "white" : currentTheme.accent[700],
+                      backgroundColor:
+                        selectedTime === time ? 'rgb(0, 50, 115)' : 'rgb(224, 242, 254)',
+                      color:
+                        selectedTime === time ? "white" : 'rgb(0, 50, 115)',
                     }}
                   >
-                    {time}
+                    <div className="text-sm font-medium">{time}</div>
                   </button>
                 ))}
               </div>
@@ -283,7 +285,7 @@ export default function ServiceDetailPage() {
         <ThemedCard variant="accent">
           <ThemedCardHeader variant="accent">
             <CardTitle className="text-base flex items-center">
-              <Info className="w-4 h-4 mr-2" />
+              <Info className="w-4 h-4 mr-2" style={{ color: 'rgb(255, 235, 0)' }} />
               ご利用にあたって
             </CardTitle>
           </ThemedCardHeader>

@@ -208,7 +208,7 @@ export default function HomePage() {
             }}
           >
             <CardTitle className="text-base flex items-center" style={{ color: '#ffffff', margin: '0', padding: '0' }}>
-              <Calendar className="w-4 h-4 mr-2" style={{ color: '#ffffff' }} />
+              <Calendar className="w-4 h-4 mr-2" style={{ color: 'rgb(255, 235, 0)' }} />
               次回のご予約
             </CardTitle>
           </div>
@@ -220,35 +220,37 @@ export default function HomePage() {
               </div>
             ) : nextBooking ? (
               <div className="p-4 rounded-lg" style={{ backgroundColor: '#ffffff' }}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-2" style={{ color: 'rgb(0, 50, 115)' }}>
+                <div className="w-full">
+                  <div className="mb-3">
+                    <h3 className="font-semibold mb-2 text-center" style={{ color: 'rgb(0, 50, 115)' }}>
                       {nextBooking.service_type}（1日コース）
                     </h3>
-                    <div className="space-y-1 text-sm" style={{ color: 'rgb(0, 50, 115)' }}>
-                      <div className="flex items-center">
-                        <Calendar className="w-3 h-3 mr-1" style={{ color: 'rgb(0, 50, 115)' }} />
-                        {new Date(nextBooking.booking_date).toLocaleDateString('ja-JP', {
-                          month: 'long',
-                          day: 'numeric',
-                          weekday: 'short'
-                        })} {nextBooking.booking_time}
+                    <div className="space-y-2 text-center" style={{ color: 'rgb(0, 50, 115)' }}>
+                      <div className="flex items-center justify-center">
+                        <span className="font-medium">
+                          {new Date(nextBooking.booking_date).toLocaleDateString('ja-JP', {
+                            month: 'long',
+                            day: 'numeric',
+                            weekday: 'short'
+                          })} {nextBooking.booking_time}
+                        </span>
                       </div>
                       {nextBooking.dog?.name && (
-                        <div className="text-xs" style={{ color: 'rgb(0, 50, 115)' }}>
+                        <div className="text-sm font-medium px-3 py-1 rounded-lg w-full max-w-xs mx-auto" style={{ color: 'rgb(0, 50, 115)', backgroundColor: 'rgb(224, 242, 254)' }}>
                           愛犬: {nextBooking.dog.name}
                         </div>
                       )}
                     </div>
-                    <div className="flex space-x-2 mt-3">
-                      <ThemedButton 
-                        size="sm" 
-                        variant="primary"
-                        onClick={() => router.push("/booking-detail")}
-                      >
-                        予約詳細
-                      </ThemedButton>
-                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <ThemedButton 
+                      size="default" 
+                      variant="primary"
+                      onClick={() => router.push("/booking-detail")}
+                      className="w-full max-w-xs"
+                    >
+                      予約詳細
+                    </ThemedButton>
                   </div>
                 </div>
               </div>

@@ -12,8 +12,8 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "node server.js",
-    "azure:start": "node .next/standalone/server.js",
-    "deploy": "npm ci && npm run build && npm run azure:start",
+    "azure:start": "NODE_OPTIONS='--max-old-space-size=1024' node .next/standalone/server.js",
+    "deploy": "npm ci --production=false && npm run build && npm run azure:start",
     "test:api": "echo 'API connection test - implement with your FastAPI backend'",
     "type-check": "tsc --noEmit"
   },

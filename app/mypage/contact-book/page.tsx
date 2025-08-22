@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import BottomNavigation from "@/components/bottom-navigation"
 import { PageHeader } from "@/components/page-header"
-import { ArrowLeft, Heart, Users, Zap, AlertTriangle, Trophy, CheckCircle, AlertCircle, XCircle } from "lucide-react"
+import { ArrowLeft, Heart, Users, Zap, AlertTriangle, Trophy, CheckCircle, AlertCircle, XCircle, Clock, Star } from "lucide-react"
 import { useTheme } from "@/contexts/theme-context"
 
 export default function ContactBookViewPage() {
@@ -189,7 +189,7 @@ export default function ContactBookViewPage() {
             <ThemedCard>
               <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Heart className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                  <Heart className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                   身体のふれあい（お手入れ時の様子）
                 </CardTitle>
               </ThemedCardHeader>
@@ -215,7 +215,7 @@ export default function ContactBookViewPage() {
             <ThemedCard>
               <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                  <Clock className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                   お別れの時の様子
                 </CardTitle>
               </ThemedCardHeader>
@@ -233,7 +233,7 @@ export default function ContactBookViewPage() {
             <ThemedCard>
               <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Zap className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                  <Zap className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                   元気度・活発さ
                 </CardTitle>
               </ThemedCardHeader>
@@ -252,7 +252,7 @@ export default function ContactBookViewPage() {
             <ThemedCard>
               <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                  <Users className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                   お友達への挨拶の仕方
                 </CardTitle>
               </ThemedCardHeader>
@@ -270,7 +270,7 @@ export default function ContactBookViewPage() {
             <ThemedCard>
               <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                  <AlertTriangle className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                   興奮時の行動
                 </CardTitle>
               </ThemedCardHeader>
@@ -288,7 +288,7 @@ export default function ContactBookViewPage() {
             <ThemedCard>
               <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Heart className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                  <Star className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                   効果的な落ち着かせ方
                 </CardTitle>
               </ThemedCardHeader>
@@ -308,7 +308,7 @@ export default function ContactBookViewPage() {
             <ThemedCard>
               <ThemedCardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Trophy className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
+                  <Trophy className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                   お友達との相性
                 </CardTitle>
               </ThemedCardHeader>

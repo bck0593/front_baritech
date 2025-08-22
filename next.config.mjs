@@ -2,8 +2,15 @@
 
 const nextConfig = {
   reactStrictMode: false,
-  swcMinify: true,
   output: 'standalone',
+  
+  // パフォーマンス最適化
+  compress: true,
+  poweredByHeader: false,
+  generateEtags: false,
+  
+  // サーバー最適化（Next.js 15対応）
+  serverExternalPackages: ['fs-extra'],
   
   eslint: {
     ignoreDuringBuilds: true,
@@ -16,7 +23,8 @@ const nextConfig = {
   },
   
   experimental: {
-    outputFileTracingRoot: undefined,
+    // 有効なオプションのみ
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
   
   webpack: (config, { isServer, dev }) => {
@@ -26,11 +34,6 @@ const nextConfig = {
         path: false,
         os: false,
       }
-    }
-    
-    // Webpackキャッシュを無効化（Windowsでの権限問題回避）
-    if (dev) {
-      config.cache = false
     }
     
     return config

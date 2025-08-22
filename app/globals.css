@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* C/* Critical CSS - 最優先で読み込み */
+/* Critical CSS - 最優先で読み込み */
 * {
   box-sizing: border-box;
   margin: 0;

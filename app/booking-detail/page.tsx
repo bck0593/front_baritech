@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { PageHeader } from "@/components/page-header"
 import BottomNavigation from "@/components/bottom-navigation"
-import { Calendar, Phone, Mail, FileText } from "lucide-react"
+import { Calendar, Phone, Mail, FileText, History } from "lucide-react"
 import { useTheme } from "@/contexts/theme-context"
 
 export default function BookingDetailPage() {
@@ -63,7 +63,7 @@ export default function BookingDetailPage() {
             <ThemedCardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-white" />
+                  <Calendar className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                   予約情報
                 </div>
                 {getStatusBadge(bookingDetail.status)}
@@ -96,19 +96,14 @@ export default function BookingDetailPage() {
                 <p className="font-medium">{bookingDetail.location}</p>
                 <p className="text-sm text-gray-500">{bookingDetail.address}</p>
               </div>
-
-              <div>
-                <p className="text-sm text-gray-600">担当スタッフ</p>
-                <p className="font-medium">{bookingDetail.staff}</p>
-              </div>
             </CardContent>
           </ThemedCard>
 
           <ThemedCard>
             <ThemedCardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-white" />
-                料金・備考
+                <FileText className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
+                料金
               </CardTitle>
             </ThemedCardHeader>
             <CardContent className="space-y-4">
@@ -116,23 +111,13 @@ export default function BookingDetailPage() {
                 <span>合計料金</span>
                 <span style={{ color: 'rgb(0, 50, 115)' }}>¥{bookingDetail.price.toLocaleString()}</span>
               </div>
-
-              {bookingDetail.notes && (
-                <>
-                  <Separator />
-                  <div>
-                    <p className="text-sm text-gray-600 mb-2">備考</p>
-                    <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">{bookingDetail.notes}</p>
-                  </div>
-                </>
-              )}
             </CardContent>
           </ThemedCard>
 
           <ThemedCard>
             <ThemedCardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Phone className="w-5 h-5 text-white" />
+                <Phone className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
                 お問い合わせ
               </CardTitle>
             </ThemedCardHeader>
@@ -150,7 +135,10 @@ export default function BookingDetailPage() {
 
           <ThemedCard>
             <ThemedCardHeader>
-              <CardTitle>予約履歴</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <History className="w-5 h-5" style={{ color: 'rgb(255, 235, 0)' }} />
+                予約履歴
+              </CardTitle>
             </ThemedCardHeader>
             <CardContent className="space-y-2">
               <div className="flex justify-between text-sm">

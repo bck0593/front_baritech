@@ -1532,7 +1532,7 @@ export default function AdminPage() {
                   <Calendar className="w-6 h-6" style={{ color: currentTheme.primary[500] }} />
                   イベント登録
                 </h3>
-                <p className="text-gray-600 mt-2">新しいイベントを作成し、一般ユーザーに公開します</p>
+                <p className="text-white mt-2">新しいイベントを作成し、一般ユーザーに公開します</p>
               </ThemedCardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

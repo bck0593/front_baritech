@@ -93,7 +93,7 @@ export default function BookingPage() {
         <ThemedCard>
           <ThemedCardHeader variant="primary" style={{ backgroundColor: 'rgb(0, 50, 115)', color: '#ffffff' }}>
             <CardTitle className="text-base flex items-center" style={{ color: '#ffffff' }}>
-              <Dog className="w-4 h-4 mr-2" style={{ color: '#ffffff' }} />
+              <Dog className="w-4 h-4 mr-2" style={{ color: 'rgb(255, 235, 0)' }} />
               ワンちゃん選択
             </CardTitle>
           </ThemedCardHeader>
@@ -134,7 +134,7 @@ export default function BookingPage() {
         <ThemedCard variant="accent">
           <ThemedCardHeader variant="accent" style={{ backgroundColor: 'rgb(0, 50, 115)', color: '#ffffff' }}>
             <CardTitle className="text-base flex items-center" style={{ color: '#ffffff' }}>
-              <List className="w-4 h-4 mr-2" style={{ color: '#ffffff' }} />
+              <List className="w-4 h-4 mr-2" style={{ color: 'rgb(255, 235, 0)' }} />
               サービス一覧
             </CardTitle>
           </ThemedCardHeader>
@@ -146,27 +146,26 @@ export default function BookingPage() {
                   onClick={() => handleServiceSelect(service.id)}
                   className="relative p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md"
                   style={{
-                    // 全サービスを太枠で強調
                     borderWidth: "3px",
-                    borderColor: currentTheme.accent[400],
-                    backgroundColor: "white",
+                    borderColor: "rgb(255, 235, 0)",
+                    backgroundColor: "rgb(255, 249, 204)",
                   }}
                 >
                   <div className="flex items-start space-x-3">
                     <div className="text-3xl">{service.icon}</div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-medium text-gray-800">{service.name}</h3>
-                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                        <h3 className="font-medium" style={{ color: "#000000" }}>{service.name}</h3>
+                        <ChevronRight className="w-5 h-5" style={{ color: "#000000" }} />
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{service.description}</p>
+                      <p className="text-sm mb-2" style={{ color: "#000000" }}>{service.description}</p>
 
                       <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center text-xs text-gray-500">
-                          <Clock className="w-3 h-3 mr-1" />
+                        <div className="flex items-center text-xs" style={{ color: "#000000" }}>
+                          <Clock className="w-3 h-3 mr-1" style={{ color: "#000000" }} />
                           {service.duration}
                         </div>
-                        <span className="font-bold text-lg" style={{ color: currentTheme.accent[600] }}>
+                        <span className="font-bold text-lg" style={{ color: "#000000" }}>
                           {service.price}
                         </span>
                       </div>
@@ -182,7 +181,7 @@ export default function BookingPage() {
         <ThemedCard>
           <ThemedCardHeader variant="primary" style={{ backgroundColor: 'rgb(0, 50, 115)', color: '#ffffff' }}>
             <CardTitle className="text-base flex items-center" style={{ color: '#ffffff' }}>
-              <Calendar className="w-4 h-4 mr-2" style={{ color: '#ffffff' }} />
+              <Calendar className="w-4 h-4 mr-2" style={{ color: 'rgb(255, 235, 0)' }} />
               予約一覧
             </CardTitle>
           </ThemedCardHeader>
