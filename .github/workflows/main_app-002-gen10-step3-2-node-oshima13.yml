@@ -76,27 +76,102 @@ jobs:
         # Create deployment directory
         mkdir -p deploy-package
         
-        # Copy standalone build
+        # Copy standalone build (this includes the complete app)
         cp -r .next/standalone/* deploy-package/
         
-        # Copy static assets
+        # Copy static assets to the correct location
         mkdir -p deploy-package/.next/static
         cp -r .next/static/* deploy-package/.next/static/ 2>/dev/null || echo "No static files to copy"
         
-        # Copy public assets
+        # Copy public assets to the correct location  
+        mkdir -p deploy-package/public
         cp -r public/* deploy-package/public/ 2>/dev/null || echo "No public files to copy"
         
-        # Copy essential files
-        cp package.json deploy-package/ 2>/dev/null || echo "No package.json to copy"
+        # Copy server files
         cp server.js deploy-package/ 2>/dev/null || echo "No server.js to copy"
         cp copy-static.js deploy-package/ 2>/dev/null || echo "No copy-static.js to copy"
         
+        # Create a minimal package.json for Azure without build scripts
+        cat > deploy-package/package.json << 'EOF'
+{
+  "name": "dogmates-app",
+  "version": "1.0.0",
+  "description": "Pre-built Next.js app",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
+EOF
+        
+        # Create web.config for Azure
+        cat > deploy-package/web.config << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <system.webServer>
+    <handlers>
+      <add name="iisnode" path="server.js" verb="*" modules="iisnode"/>
+    </handlers>
+    <rewrite>
+      <rules>
+        <rule name="DynamicContent">
+          <conditions>
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True"/>
+          </conditions>
+          <action type="Rewrite" url="server.js"/>
+        </rule>
+      </rules>
+    </rewrite>
+    <security>
+      <requestFiltering>
+        <hiddenSegments>
+          <remove segment="bin"/>
+        </hiddenSegments>
+      </requestFiltering>
+    </security>
+    <httpErrors existingResponse="PassThrough" />
+    <iisnode node_env="%node_env%" 
+             nodeProcessCountPerApplication="1"
+             maxConcurrentRequestsPerProcess="1024"
+             maxNamedPipeConnectionRetry="100"
+             namedPipeConnectionRetryDelay="250"
+             maxNamedPipeConnectionPoolSize="512"
+             maxNamedPipePooledConnectionAge="30000"
+             asyncCompletionThreadCount="0"
+             initialRequestBufferSize="4096"
+             maxRequestBufferSize="65536"
+             watchedFiles="web.config"
+             uncFileChangesPollingInterval="5000"
+             gracefulShutdownTimeout="60000"
+             loggingEnabled="true"
+             logDirectory="iisnode"
+             debuggingEnabled="false"
+             debugHeaderEnabled="false"
+             debuggerPortRange="5058-6058"
+             debuggerPathSegment="debug"
+             maxLogFileSizeInKB="128"
+             maxTotalLogFileSizeInKB="1024"
+             maxLogFiles="20"
+             devErrorsEnabled="false"
+             flushResponse="false"
+             enableXFF="false"
+             promoteServerVars=""
+             configOverrides="iisnode.yml" />
+  </system.webServer>
+</configuration>
+EOF
+
         echo "=== Deployment package contents ==="
         ls -la deploy-package/
+        echo "=== Package.json content ==="
+        cat deploy-package/package.json
         
         # Create zip for deployment
         cd deploy-package
-        zip -r ../deployment.zip . -x "node_modules/*"
+        zip -r ../deployment.zip .
         cd ..
         echo "=== Deployment zip created ==="
         ls -la deployment.zip
