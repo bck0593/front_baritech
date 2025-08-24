@@ -39,6 +39,10 @@ import {
   EvaluationOption,
   LoginRequest,
   LoginResponse,
+  Event,
+  CreateEventRequest,
+  UpdateEventRequest,
+  EventSearchParams,
   RegisterRequest,
 } from './types'
 
@@ -616,58 +620,6 @@ export class MasterDataService {
   }
 }
 
-// イベント関連の型定義
-export interface Event {
-  id: string
-  title: string
-  category: string
-  description: string
-  date: string
-  startTime: string
-  endTime: string
-  location: string
-  organizer: string
-  price: string
-  customPrice?: string
-  image?: string
-  details: string
-  benefits: string[]
-  target: string[]
-  status: 'draft' | 'published' | 'archived'
-  createdAt: string
-  updatedAt: string
-}
-
-export interface CreateEventRequest {
-  title: string
-  category: string
-  description: string
-  date: string
-  startTime: string
-  endTime: string
-  location: string
-  organizer: string
-  price: string
-  customPrice?: string
-  image?: string
-  details: string
-  benefits: string[]
-  target: string[]
-  status: 'draft' | 'published' | 'archived'
-}
-
-export interface UpdateEventRequest extends Partial<CreateEventRequest> {}
-
-export interface EventSearchParams {
-  category?: string
-  status?: 'draft' | 'published' | 'archived'
-  startDate?: string
-  endDate?: string
-  search?: string
-  page?: number
-  limit?: number
-}
-
 // イベントサービス
 export class EventService {
   static async getEvents(params?: EventSearchParams): Promise<PaginatedResponse<Event>> {
@@ -734,6 +686,7 @@ export class EventService {
       const newEvent: Event = {
         id: Math.random().toString(36).substring(7),
         ...data,
+        status: 'draft', // デフォルトステータス
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }

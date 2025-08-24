@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { EventService, Event } from "@/lib/api-services"
+import { EventService } from "@/lib/api-services"
+import { Event } from "@/lib/types"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Calendar, MapPin, Heart, Tag, Filter } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -186,7 +187,7 @@ export default function EventsPage() {
                 <div>
                   <h4 className="font-medium text-gray-800 mb-2">特典・サービス</h4>
                   <div className="grid grid-cols-2 gap-2">
-                    {event.benefits && event.benefits.length > 0 ? event.benefits.map((benefit, index) => (
+                    {event.benefits && event.benefits.length > 0 ? event.benefits.map((benefit: string, index: number) => (
                       <div key={index} className="flex items-center space-x-2 text-sm text-gray-600">
                         <div
                           className="w-2 h-2 rounded-full"
