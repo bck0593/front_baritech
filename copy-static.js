@@ -52,6 +52,14 @@ async function copyStatic() {
       console.log('❌ server.jsが見つかりません');
     }
     
+    // web.configをコピー（Azure App Service用）
+    const webConfigSrc = path.join(process.cwd(), 'web.config');
+    const webConfigDest = path.join(standaloneDir, 'web.config');
+    if (await fs.pathExists(webConfigSrc)) {
+      await fs.copy(webConfigSrc, webConfigDest, { overwrite: true });
+      console.log('✅ web.configをコピーしました（Azure App Service用）');
+    }
+    
     console.log('🎉 静的ファイルのコピーが完了しました！');
   } catch (error) {
     console.error('❌ 静的ファイルのコピー中にエラーが発生しました:', error);

@@ -40,18 +40,7 @@ jobs:
             .next/standalone/
             .next/static/
             public/
-            app/
-            components/
-            contexts/
-            hooks/
-            lib/
-            styles/
-            package.json
-            package-lock.json
-            server.js
-            next.config.mjs
-            web.config
-            tsconfig.json
+            photo/
 
   deploy:
     runs-on: ubuntu-latest
@@ -78,3 +67,6 @@ jobs:
           app-name: 'app-002-gen10-step3-2-node-oshima13'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APP_002_GEN10_STEP3_2_NODE_OSHIMA13 }}
           package: .
+        env:
+          WEBSITE_NODE_DEFAULT_VERSION: "20-lts"
+          SCM_DO_BUILD_DURING_DEPLOYMENT: false
