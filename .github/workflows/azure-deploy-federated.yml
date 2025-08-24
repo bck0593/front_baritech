@@ -1,10 +1,12 @@
 # DogMATEs Azure App Service デプロイワークフロー (Federated Identity版)
 # より安全なFederated Identityを使用
 
-name: Build and deploy Node.js app to Azure Web App (Federated)
+name: Build and deploy Node.js app to Azure Web App (Federated) - DISABLED
 
 on:
-  workflow_dispatch:  # 手動実行のみ
+  # workflow_dispatch:  # 手動実行のみ - 一時的に無効化
+  schedule:
+    - cron: '0 0 31 2 *' # 存在しない日付で無効化
 
 jobs:
   build:

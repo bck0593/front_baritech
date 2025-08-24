@@ -13,6 +13,14 @@ console.log('🚀 Starting Next.js Standalone Server for Azure App Service...');
 console.log('📂 Current working directory:', process.cwd());
 console.log('📂 __dirname:', __dirname);
 
+// 環境変数のデバッグ
+console.log('🌍 Environment Variables:');
+console.log('  NODE_ENV:', process.env.NODE_ENV);
+console.log('  PORT:', process.env.PORT);
+console.log('  HOSTNAME:', process.env.HOSTNAME);
+console.log('  WEBSITE_HOSTNAME:', process.env.WEBSITE_HOSTNAME);
+console.log('  NEXT_PUBLIC_USE_MOCK_DATA:', process.env.NEXT_PUBLIC_USE_MOCK_DATA);
+
 try {
   console.log('📁 Directory contents:');
   const files = fs.readdirSync(__dirname);

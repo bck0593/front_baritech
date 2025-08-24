@@ -32,6 +32,13 @@ jobs:
           NODE_ENV: production
           NEXT_PUBLIC_USE_MOCK_DATA: false
 
+      - name: Copy startup.js and app.json to standalone directory
+        run: |
+          echo "✅ startup.jsとapp.jsonをコピーしました（Azure App Service用）"
+          cp startup.js .next/standalone/
+          cp app.json .next/standalone/
+          ls -la .next/standalone/startup.js .next/standalone/app.json
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:

@@ -4,7 +4,7 @@
   "description": "Imabari Dog Care Management App - Run #37 deployment 2025-08-19",
   "private": true,
   "engines": {
-    "node": ">=20.0.0",
+    "node": "20.19.3",
     "npm": ">=8.0.0"
   },
   "scripts": {
