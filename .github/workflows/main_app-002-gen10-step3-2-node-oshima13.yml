@@ -61,10 +61,20 @@ jobs:
         with:
           name: node-app
 
+      - name: Check secrets availability
+        run: |
+          if [ -z "${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_73B3B6AA889846F2AC6B7ACF44CF7B68 }}" ]; then
+            echo "ERROR: Publish profile secret is not set"
+            echo "Please set the secret in GitHub repository settings"
+            exit 1
+          else
+            echo "Publish profile secret is available"
+          fi
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'app-002-gen10-step3-2-node-oshima13'
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_73B3B6AA889846F2AC6B7ACF44CF7B68 }}
           package: .
