@@ -40,6 +40,21 @@ jobs:
           # ✅ Environment file
           [ -f .env.production ] && cp .env.production out_zip/.env.production || true
           
+          # ✅ Create startup command file for Azure
+          echo "#!/bin/bash" > out_zip/startup.sh
+          echo "cd /home/site/wwwroot" >> out_zip/startup.sh
+          echo "export NODE_ENV=production" >> out_zip/startup.sh
+          echo "export PORT=\${PORT:-8080}" >> out_zip/startup.sh
+          echo "echo 'Starting Next.js standalone server...'" >> out_zip/startup.sh
+          echo "echo 'Node version: \$(node -v)'" >> out_zip/startup.sh
+          echo "echo 'Working directory: \$(pwd)'" >> out_zip/startup.sh
+          echo "echo 'Files in directory:'" >> out_zip/startup.sh
+          echo "ls -la" >> out_zip/startup.sh
+          echo "echo 'Node modules check:'" >> out_zip/startup.sh
+          echo "ls -la node_modules/next/ 2>/dev/null || echo 'Next.js module not found!'" >> out_zip/startup.sh
+          echo "exec node server.js" >> out_zip/startup.sh
+          chmod +x out_zip/startup.sh
+          
           # ✅ Verify standalone includes Next.js
           echo "🔍 Verifying Next.js module in standalone:"
           if [ -f out_zip/node_modules/next/package.json ]; then
