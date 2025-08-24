@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { EventService } from "@/lib/api-services"
 import { Event } from "@/lib/types"
 import { useRouter, useSearchParams } from "next/navigation"
+import Image from "next/image"
 import { ArrowLeft, Calendar, MapPin, Heart, Tag, Filter } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -135,7 +136,13 @@ export default function EventsPage() {
               background: `linear-gradient(to right, ${currentTheme.primary[200]}, ${currentTheme.accent[200]})`,
             }}
           >
-            <img src={event.image || "/placeholder.svg"} alt={event.title} className="w-full h-full object-cover" />
+            <Image 
+              src={event.image || "/placeholder.svg"} 
+              alt={event.title} 
+              width={300}
+              height={200}
+              className="w-full h-full object-cover" 
+            />
           </div>
 
           <div>
@@ -280,9 +287,11 @@ export default function EventsPage() {
               <CardContent className="pt-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-20 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                    <img
+                    <Image
                       src={event.image || "/placeholder.svg"}
                       alt={event.title}
+                      width={80}
+                      height={64}
                       className="w-full h-full object-cover"
                     />
                   </div>

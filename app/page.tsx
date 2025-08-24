@@ -18,18 +18,26 @@ const PhotoSlider = dynamic(() => import("@/components/photo-slider").then(mod =
   loading: () => <div className="w-full h-[280px] bg-gray-200 flex items-center justify-center">Loading...</div>
 })
 
-export default function HomePage() {
+// コンポーネント全体をクライアントサイドのみでレンダリング
+const HomePage = dynamic(() => Promise.resolve(HomePageComponent), {
+  ssr: false,
+  loading: () => (
+    <div className="max-w-md mx-auto">
+      <div className="min-h-screen bg-white">
+        <div className="flex items-center justify-center h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    </div>
+  )
+})
+
+function HomePageComponent() {
   const router = useRouter()
   const { currentTheme } = useTheme()
   const { userProfile, isLoading: authLoading } = useAuth()
   const [nextBooking, setNextBooking] = useState<Booking | null>(null)
   const [isLoadingBooking, setIsLoadingBooking] = useState(true)
-  const [isMounted, setIsMounted] = useState(false)
-
-  // クライアントサイドマウント後にtrueに設定
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
 
   // 次回予約を取得
   useEffect(() => {
@@ -53,7 +61,11 @@ export default function HomePage() {
   return (
     <div className="max-w-md mx-auto">
       <div
-        className="min-h-screen bg-white"
+        className="min-h-screen"
+        style={userProfile ? 
+          { background: `linear-gradient(to bottom, var(--pantone-blue-50), white, var(--pantone-blue-50))` } :
+          { backgroundColor: 'white' }
+        }
       >
       {/* Header */}
       <header className="bg-white shadow-sm border-b" style={{ borderColor: 'var(--pantone-blue-200)' }}>
@@ -108,16 +120,16 @@ export default function HomePage() {
         {/* Welcome Section */}
         <div className="text-center">
           <h2 className="text-lg font-heading font-semibold mb-1 tracking-tight" style={{ color: 'var(--pantone-blue-800)' }}>
-            {!isMounted ? 'おかえりなさい、ゲストさん' : (userProfile?.user.name ? `おかえりなさい、${userProfile.user.name}さん` : 'おかえりなさい、ゲストさん')}
+            {!authLoading && userProfile?.user.name ? `おかえりなさい、${userProfile.user.name}さん` : 'おかえりなさい、ゲストさん'}
           </h2>
           <p className="text-sm font-body" style={{ color: 'var(--pantone-blue-600)' }}>
-            {!isMounted ? 'ワンちゃんと素敵な一日を過ごしましょう' : (userProfile?.primaryDog?.name ? `${userProfile.primaryDog.name}と素敵な一日を過ごしましょう` : 'ワンちゃんと素敵な一日を過ごしましょう')}
+            {!authLoading && userProfile?.primaryDog?.name ? `${userProfile.primaryDog.name}と素敵な一日を過ごしましょう` : 'ワンちゃんと素敵な一日を過ごしましょう'}
           </p>
         </div>
 
         {/* Dog Profile Card */}
-        {!isMounted ? (
-          // SSR用の一貫した初期表示
+        {authLoading || !userProfile?.primaryDog ? (
+          // ローディング中または犬の情報がない場合
           <ThemedCard variant="primary">
             <CardContent className="pt-3 pb-3">
               <div className="flex items-center space-x-3">
@@ -130,18 +142,17 @@ export default function HomePage() {
             </CardContent>
           </ThemedCard>
         ) : (
-          userProfile?.primaryDog ? (
-            <ThemedCard variant="primary">
-              <CardContent className="pt-3 pb-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-                    <img
-                      src={userProfile.primaryDog.avatar || "/placeholder.svg?height=48&width=48"}
-                      alt={userProfile.primaryDog.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
+          <ThemedCard variant="primary">
+            <CardContent className="pt-3 pb-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <img
+                    src={userProfile.primaryDog.avatar || "/placeholder.svg?height=48&width=48"}
+                    alt={userProfile.primaryDog.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                </div>
+                <div className="flex-1">
                     <h3 className="font-heading font-semibold text-sm tracking-tight" style={{ color: 'rgb(0, 50, 115)' }}>
                       {userProfile.primaryDog.name}
                     </h3>
@@ -162,31 +173,6 @@ export default function HomePage() {
                 </div>
               </CardContent>
             </ThemedCard>
-          ) : authLoading ? (
-            <ThemedCard variant="primary">
-              <CardContent className="pt-3 pb-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full animate-pulse"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded animate-pulse mb-1"></div>
-                    <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3"></div>
-                  </div>
-                </div>
-              </CardContent>
-            </ThemedCard>
-          ) : (
-            <ThemedCard variant="primary">
-              <CardContent className="pt-3 pb-3 text-center">
-                <p className="text-sm text-gray-600">愛犬情報が見つかりません</p>
-                <button 
-                  onClick={() => router.push("/register/dog-profile")}
-                  className="mt-2 text-xs text-blue-600 underline"
-                >
-                  愛犬を登録する
-                </button>
-              </CardContent>
-            </ThemedCard>
-          )
         )}
 
         {/* Next Reservation */}
@@ -205,7 +191,7 @@ export default function HomePage() {
             </CardTitle>
           </div>
           <div style={{ padding: '16px' }}>
-            {!isMounted || isLoadingBooking ? (
+            {isLoadingBooking ? (
               <div className="p-4 rounded-lg text-center" style={{ backgroundColor: '#ffffff' }}>
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 mx-auto mb-2" style={{ borderColor: 'rgb(0, 50, 115)' }}></div>
                 <p className="text-sm" style={{ color: 'rgb(0, 50, 115)' }}>予約情報を読み込み中...</p>
@@ -304,3 +290,5 @@ export default function HomePage() {
     </div>
   )
 }
+
+export default HomePage
