@@ -13,9 +13,11 @@
     "lint": "next lint",
     "start": "node startup.js",
     "azure:start": "node startup.js",
-    "deploy": "npm ci --production=false && npm run build && npm run azure:start",
+    "deploy": "npm ci --production=false && npm run build",
     "test:api": "echo 'API connection test - implement with your FastAPI backend'",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf .next && rm -rf out",
+    "prebuild": "npm run type-check"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.0",

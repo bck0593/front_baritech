@@ -73,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
 
   // ユーザープロファイルを取得
   const refreshProfile = async () => {
@@ -117,30 +118,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // クライアントサイドマウント後に認証情報を復元
   useEffect(() => {
-    // ローカルストレージから認証情報を復元
-    const savedUser = localStorage.getItem("auth_user")
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser)
-        setUser(parsedUser)
-      } catch (error) {
-        console.error("Failed to parse saved user:", error)
-        localStorage.removeItem("auth_user")
-      }
-    }
-    setIsLoading(false)
+    setIsMounted(true)
   }, [])
+
+  // 認証状態の初期化（マウント後のみ）
+  useEffect(() => {
+    if (!isMounted) return
+
+    const initializeAuth = async () => {
+      setIsLoading(true)
+      
+      if (typeof window !== 'undefined') {
+        if (USE_MOCK_DATA) {
+          // モックデータモードでの初期化
+          const savedUserEmail = localStorage.getItem('mockUser')
+          if (savedUserEmail) {
+            const mockUser = mockUsers.find(u => u.email === savedUserEmail)
+            if (mockUser) {
+              const { password, ...userWithoutPassword } = mockUser
+              setUser(userWithoutPassword)
+            }
+          }
+        } else {
+          // 実際のAPIでの認証確認
+          const savedUser = localStorage.getItem("auth_user")
+          if (savedUser) {
+            try {
+              const parsedUser = JSON.parse(savedUser)
+              setUser(parsedUser)
+            } catch (error) {
+              console.error("Failed to parse saved user:", error)
+              localStorage.removeItem("auth_user")
+            }
+          }
+        }
+      }
+      
+      setIsLoading(false)
+    }
+
+    initializeAuth()
+  }, [isMounted])
 
   // ユーザーが変更されたときにプロファイルを更新
   useEffect(() => {
-    if (user) {
+    if (user && isMounted) {
       refreshProfile()
     } else {
       setUserProfile(null)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
+  }, [user, isMounted])
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true)

@@ -108,15 +108,28 @@ export default function HomePage() {
         {/* Welcome Section */}
         <div className="text-center">
           <h2 className="text-lg font-heading font-semibold mb-1 tracking-tight" style={{ color: 'var(--pantone-blue-800)' }}>
-            おかえりなさい、{isMounted && userProfile?.user.name ? userProfile.user.name : 'ゲスト'}さん
+            {!isMounted ? 'おかえりなさい、ゲストさん' : (userProfile?.user.name ? `おかえりなさい、${userProfile.user.name}さん` : 'おかえりなさい、ゲストさん')}
           </h2>
           <p className="text-sm font-body" style={{ color: 'var(--pantone-blue-600)' }}>
-            {isMounted && userProfile?.primaryDog?.name ? userProfile.primaryDog.name : 'ワンちゃん'}と素敵な一日を過ごしましょう
+            {!isMounted ? 'ワンちゃんと素敵な一日を過ごしましょう' : (userProfile?.primaryDog?.name ? `${userProfile.primaryDog.name}と素敵な一日を過ごしましょう` : 'ワンちゃんと素敵な一日を過ごしましょう')}
           </p>
         </div>
 
         {/* Dog Profile Card */}
-        {isMounted ? (
+        {!isMounted ? (
+          // SSR用の一貫した初期表示
+          <ThemedCard variant="primary">
+            <CardContent className="pt-3 pb-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                <div className="flex-1">
+                  <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              </div>
+            </CardContent>
+          </ThemedCard>
+        ) : (
           userProfile?.primaryDog ? (
             <ThemedCard variant="primary">
               <CardContent className="pt-3 pb-3">
@@ -174,19 +187,6 @@ export default function HomePage() {
               </CardContent>
             </ThemedCard>
           )
-        ) : (
-          // SSR用の初期表示
-          <ThemedCard variant="primary">
-            <CardContent className="pt-3 pb-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
-                <div className="flex-1">
-                  <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                </div>
-              </div>
-            </CardContent>
-          </ThemedCard>
         )}
 
         {/* Next Reservation */}
@@ -298,6 +298,7 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
       </div>
       <BottomNavigation />
     </div>

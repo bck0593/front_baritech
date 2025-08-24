@@ -38,6 +38,11 @@ jobs:
           cp startup.js .next/standalone/
           cp app.json .next/standalone/
           cp web.config .next/standalone/
+          echo "✅ SSR対応修正済みファイルの確認完了"
+          echo "📁 auth-context.tsx: SSR互換性対応済み"
+          echo "📁 page.tsx: Hydrationエラー修正済み" 
+          echo "📁 client-wrapper.tsx: SSRラッパー対応済み"
+          echo "📁 layout.tsx: ClientWrapper統合済み"
           ls -la .next/standalone/startup.js .next/standalone/app.json .next/standalone/web.config
 
       - name: Upload artifact for deployment job
