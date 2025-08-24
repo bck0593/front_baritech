@@ -66,6 +66,24 @@ jobs:
         with:
           name: node-app
 
+      - name: Debug - Check publish profile secret
+        run: |
+          if [ -z "${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CC79AF4AC4AF4ED58A9DC4A4EDE57EF8 }}" ]; then
+            echo "❌ Publish profile secret is empty or not found"
+            echo "Available secrets:"
+            env | grep -i azure || echo "No Azure-related environment variables found"
+          else
+            echo "✅ Publish profile secret is available"
+            echo "Secret length: ${#PUBLISH_PROFILE}"
+          fi
+        env:
+          PUBLISH_PROFILE: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CC79AF4AC4AF4ED58A9DC4A4EDE57EF8 }}
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CC79AF4AC4AF4ED58A9DC4A4EDE57EF8 }}
+
       - name: Wait for previous deployment to complete
         run: |
           echo "Waiting 30 seconds to ensure previous deployment is complete..."
@@ -73,8 +91,9 @@ jobs:
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: 'app-002-gen10-step3-2-node-oshima13'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CC79AF4AC4AF4ED58A9DC4A4EDE57EF8 }}
           package: .
+          clean: true
