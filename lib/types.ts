@@ -300,3 +300,67 @@ export interface CreateDogEvaluationRequest {
   body_handling: Record<string, string>
   notes?: string
 }
+
+// イベント関連
+export interface Event {
+  id: string
+  title: string
+  description: string
+  date: string
+  startTime: string
+  endTime: string
+  location: string
+  organizer: string
+  category: string
+  price: string | number
+  status: string
+  image?: string
+  details: string
+  benefits?: string[]
+  target?: string[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateEventRequest {
+  title: string
+  description: string
+  date: string
+  startTime: string
+  endTime: string
+  location: string
+  organizer: string
+  category: string
+  price: string | number
+  image?: string
+  details: string
+  benefits?: string[]
+  target?: string[]
+}
+
+export interface UpdateEventRequest {
+  title?: string
+  description?: string
+  date?: string
+  startTime?: string
+  endTime?: string
+  location?: string
+  organizer?: string
+  category?: string
+  price?: string | number
+  status?: string
+  image?: string
+  details?: string
+  benefits?: string[]
+  target?: string[]
+}
+
+export interface EventSearchParams {
+  category?: string
+  status?: string
+  startDate?: string
+  endDate?: string
+  search?: string
+  page?: number
+  limit?: number
+}
