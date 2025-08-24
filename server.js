@@ -5,49 +5,38 @@ const next = require('next')
 
 // 環境変数
 const dev = process.env.NODE_ENV !== 'production'
-const hostname = process.env.HOSTNAME || 'localhost'
-const port = process.env.PORT || 8080
+const port = process.env.PORT  // Azure が必ず設定する
 
-console.log('Starting Next.js server...')
-console.log(`Environment: ${process.env.NODE_ENV}`)
-console.log(`Port: ${port}`)
-console.log(`Hostname: ${hostname}`)
+console.log('🚀 Starting Next.js server for Azure App Service...')
+console.log(`📡 Port: ${port}`)
+console.log(`🌍 Environment: ${process.env.NODE_ENV}`)
 
-// Next.jsアプリケーションの初期化
-const app = next({ dev, hostname, port })
+// Next.jsアプリケーションの初期化（hostnameを省略）
+const app = next({ dev, port })
 const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
+  console.log('✅ Next.js app prepared successfully')
+  
   createServer(async (req, res) => {
     try {
       const parsedUrl = parse(req.url, true)
       await handle(req, res, parsedUrl)
     } catch (err) {
-      console.error('Error occurred handling', req.url, err)
+      console.error('❌ Error occurred handling', req.url, err)
       res.statusCode = 500
       res.end('internal server error')
     }
   })
   .once('error', (err) => {
-    console.error('Server error:', err)
+    console.error('❌ Server error:', err)
     process.exit(1)
   })
-  .listen(port, () => {
-    console.log(`> Ready on http://${hostname}:${port}`)
-    console.log(`> Server started successfully`)
+  .listen(port, '0.0.0.0', () => {
+    console.log(`🎉 Server ready on http://0.0.0.0:${port}`)
+    console.log(`✅ Azure App Service startup completed`)
   })
 }).catch((err) => {
-  console.error('Failed to start server:', err)
+  console.error('❌ Failed to start server:', err)
   process.exit(1)
-})
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully')
-  process.exit(0)
-})
-
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully')
-  process.exit(0)
 })

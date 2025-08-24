@@ -52,6 +52,13 @@ async function copyStatic() {
       console.log('❌ server.jsが見つかりません');
     }
     
+    // カスタムserver.jsを上書きコピー（Azure App Service用）
+    const customServerPath = path.join(process.cwd(), 'server.js');
+    if (await fs.pathExists(customServerPath)) {
+      await fs.copy(customServerPath, serverJsPath, { overwrite: true });
+      console.log('✅ Azure App Service用server.jsを上書きコピーしました');
+    }
+    
     // web.configをコピー（Azure App Service用）
     const webConfigSrc = path.join(process.cwd(), 'web.config');
     const webConfigDest = path.join(standaloneDir, 'web.config');
