@@ -19,19 +19,23 @@ jobs:
       - run: npm ci
       - run: NEXT_TELEMETRY_DISABLED=1 npm run build  # next.config に output:'standalone' 必須
 
-      - name: Prepare flat-standalone & zip
+      - name: Prepare A方式 flat-standalone & zip
         run: |
           rm -rf out_zip && mkdir -p out_zip/.next
-          # ★ standalone をルートに展開
+          # ★ A方式: standalone をルートに展開
           cp -r .next/standalone/* out_zip/
-          # ★ 静的アセットは .next/static のまま
+          # ★ 静的アセットは .next/static のまま（standaloneの隣）
           mkdir -p out_zip/.next
           cp -r .next/static out_zip/.next/static
-          # 任意
+          # 公開ファイル
           [ -d public ] && cp -r public out_zip/public || true
+          [ -d photo ] && cp -r photo out_zip/public/photo || true
           [ -f .env.production ] && cp .env.production out_zip/.env.production || true
           # ★ zip 化（Run From Package 用）
           (cd out_zip && zip -r ../app.zip .)
+          echo "A方式構造確認:"
+          ls -la out_zip/
+          ls -la out_zip/.next/
 
       - uses: actions/upload-artifact@v4
         with:
@@ -51,3 +55,4 @@ jobs:
           app-name: app-002-gen10-step3-2-node-oshima13
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APP_002_GEN10_STEP3_2_NODE_OSHIMA13 }}
           package: app.zip
+          startup-command: '/bin/sh -c "cd /home/site/wwwroot/.next/standalone && export NODE_ENV=production && exec node server.js"'

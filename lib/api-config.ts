@@ -126,4 +126,4 @@ export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development'
 export const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 
 // API使用可能性チェック（開発中はモックデータを使用）
-export const USE_MOCK_DATA = IS_DEVELOPMENT && !process.env.NEXT_PUBLIC_API_URL
+export const USE_MOCK_DATA = true // 強制的にモックデータを使用

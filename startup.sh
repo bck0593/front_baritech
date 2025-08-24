@@ -1,25 +1,26 @@
 #!/bin/bash
 
-# Azure App Service startup script for Next.js application
+# A方式: standalone server.js を .next/standalone ディレクトリで実行
+# Azure App Service での推奨起動方法
 
-echo "🚀 Starting Next.js application on Azure App Service..."
+echo "=== A方式 Standalone Server起動 ==="
+echo "Current directory: $(pwd)"
+echo "Node version: $(node -v)"
+echo "NODE_ENV: $NODE_ENV"
+echo "PORT: $PORT"
 
-# Set environment variables
+# .next/standalone ディレクトリに移動
+cd /home/site/wwwroot/.next/standalone
+
+echo "Standalone directory contents:"
+ls -la
+
+echo "Node modules check:"
+ls -la node_modules | head -10
+
+# 環境変数設定
 export NODE_ENV=production
-export PORT=${PORT:-8080}
 
-echo "📡 Port: $PORT"
-echo "🌍 Environment: $NODE_ENV"
-
-# Check if standalone server exists
-if [ -f ".next/standalone/server.js" ]; then
-    echo "✅ Found standalone server, starting..."
-    cd .next/standalone
-    node server.js
-elif [ -f "startup.js" ]; then
-    echo "✅ Found startup.js, starting..."
-    node startup.js
-else
-    echo "❌ No server file found, using Next.js start..."
-    npm run start
-fi
+# standalone server.js 実行
+echo "Starting standalone server..."
+exec node server.js

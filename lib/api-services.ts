@@ -47,6 +47,7 @@ import { mockOwners } from './mock-data/owners'
 import { mockDogs } from './mock-data/dogs'
 import { mockBookings } from './mock-data/bookings'
 import { mockUsers } from './mock-data/users'
+import { mockEvents } from './mock-data/events'
 
 // 認証サービス
 export class AuthService {
@@ -671,83 +672,6 @@ export interface EventSearchParams {
 export class EventService {
   static async getEvents(params?: EventSearchParams): Promise<PaginatedResponse<Event>> {
     if (USE_MOCK_DATA) {
-      // モックイベントデータ
-      const mockEvents: Event[] = [
-        {
-          id: '1',
-          title: 'ユニ・チャーム協業イベント',
-          category: 'health',
-          description: '愛犬の健康ケア体験会',
-          date: '2024-08-20',
-          startTime: '14:00',
-          endTime: '16:00',
-          location: 'FC今治 里山ドッグラン',
-          organizer: 'ユニ・チャーム × FC今治',
-          price: 'free',
-          image: '/images/fcimabari_20240621104218_7.jpg',
-          details: 'ペットの健康管理について学ぶ体験会です。',
-          benefits: ['trial-pack'],
-          target: ['all-dogs', 'beginners'],
-          status: 'published',
-          createdAt: '2024-08-15T10:00:00Z',
-          updatedAt: '2024-08-15T10:00:00Z'
-        },
-        {
-          id: '2',
-          title: 'アジリティ体験会',
-          category: 'sports',
-          description: '初心者向けドッグスポーツ',
-          date: '2024-08-25',
-          startTime: '10:00',
-          endTime: '12:00',
-          location: 'FC今治 里山ドッグラン',
-          organizer: 'FC今治',
-          price: '2000',
-          details: 'アジリティの基本を学ぶ初心者向けの体験会です。',
-          benefits: ['photo-service'],
-          target: ['all-dogs', 'beginners'],
-          status: 'published',
-          createdAt: '2024-08-15T11:00:00Z',
-          updatedAt: '2024-08-15T11:00:00Z'
-        },
-        {
-          id: '3',
-          title: 'しまなみ散歩会',
-          category: 'outdoor',
-          description: '愛犬と楽しむ自然散策',
-          date: '2024-08-28',
-          startTime: '09:00',
-          endTime: '11:00',
-          location: 'しまなみ海道周辺',
-          organizer: '今治市観光協会',
-          price: '1500',
-          details: 'しまなみの自然を愛犬と一緒に楽しみましょう。',
-          benefits: ['gift'],
-          target: ['all-dogs'],
-          status: 'published',
-          createdAt: '2024-08-15T12:00:00Z',
-          updatedAt: '2024-08-15T12:00:00Z'
-        },
-        {
-          id: '4',
-          title: 'ペット防災セミナー',
-          category: 'education',
-          description: 'もしもの時に備えて',
-          date: '2024-09-03',
-          startTime: '19:00',
-          endTime: '20:30',
-          location: '今治市民館',
-          organizer: '今治市役所',
-          price: 'free',
-          details: 'ペットと一緒の防災について学びます。',
-          benefits: [],
-          target: ['all-dogs'],
-          status: 'published',
-          createdAt: '2024-08-15T13:00:00Z',
-          updatedAt: '2024-08-15T13:00:00Z'
-        }
-      ]
-
       // フィルタリング
       let filteredEvents = mockEvents
       if (params?.category) {
