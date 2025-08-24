@@ -1,15 +1,7 @@
-# DogMATEs Azure App Service デプロイワークフロー - ZIP Package方式 (RUN_FROM_PACKAGE)
-# WEBSITE_RUN_FROM_PACKAGE=1 対応でKudu rsync回避
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy Node.js app to Azure Web App - app-002-gen10-step3-2-node-oshima13
-
+name: Deploy to Azure
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [ main ]
 
 concurrency:
   group: app-002-gen10
@@ -18,98 +10,44 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Node.js version
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+      - run: npm ci
+      - run: NEXT_TELEMETRY_DISABLED=1 npm run build  # next.config に output:'standalone' 必須
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build application
-        run: npm run build
-        env:
-          NODE_ENV: production
-          NEXT_PUBLIC_USE_MOCK_DATA: false
-
-      - name: Prepare ZIP artifact for RUN_FROM_PACKAGE deployment
+      - name: Prepare flat-standalone & zip
         run: |
-          echo "🚀 Preparing ZIP artifact for WEBSITE_RUN_FROM_PACKAGE=1..."
-          rm -rf app_package && mkdir -p app_package
-          
-          # 肝：standalone の中身をパッケージ用ディレクトリに展開
-          echo "📦 Copying standalone content..."
-          cp -r .next/standalone/* app_package/
-          
-          # 静的ファイルを正しいパスに配置
-          echo "📁 Setting up static files..."
-          mkdir -p app_package/.next
-          cp -r .next/static app_package/.next/static
-          
-          # publicディレクトリもコピー
-          echo "🌐 Copying public assets..."
-          cp -r public app_package/public || true
-          
-          # 環境設定ファイル
-          echo "⚙️ Copying environment config..."
-          [ -f .env.production ] && cp .env.production app_package/.env.production || true
-          
-          # カスタムserver.jsを上書き（Azure最適化版）
-          echo "🔧 Deploying Azure-optimized server.js..."
-          cp server.js app_package/server.js
-          
-          # web.configも追加（Azure App Service用）
-          echo "🌐 Adding web.config for Azure..."
-          cp web.config app_package/web.config
-          
-          echo "📦 Creating ZIP package for deployment..."
-          cd app_package
-          zip -r ../deployment-package.zip . -x "*.git*"
-          cd ..
-          
-          echo "✅ ZIP package created successfully"
-          echo "📋 Package contents check:"
-          unzip -l deployment-package.zip | head -20
-          echo "📊 Package size:"
-          ls -lh deployment-package.zip
+          rm -rf out_zip && mkdir -p out_zip/.next
+          # ★ standalone をルートに展開
+          cp -r .next/standalone/* out_zip/
+          # ★ 静的アセットは .next/static のまま
+          mkdir -p out_zip/.next
+          cp -r .next/static out_zip/.next/static
+          # 任意
+          [ -d public ] && cp -r public out_zip/public || true
+          [ -f .env.production ] && cp .env.production out_zip/.env.production || true
+          # ★ zip 化（Run From Package 用）
+          (cd out_zip && zip -r ../app.zip .)
 
-      - name: Upload ZIP artifact for deployment
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: deployment-package
-          path: deployment-package.zip
+          name: app-zip
+          path: app.zip
 
   deploy:
-    runs-on: ubuntu-latest
     needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Download ZIP artifact from build job
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-          name: deployment-package
-
-      - name: Wait for previous deployment to complete
-        run: |
-          echo "Waiting 30 seconds to ensure previous deployment is complete..."
-          sleep 30
-
-      - name: 'Deploy ZIP Package to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+          name: app-zip
+          path: .
+      - uses: azure/webapps-deploy@v3
         with:
-          app-name: 'app-002-gen10-step3-2-node-oshima13'
+          app-name: app-002-gen10-step3-2-node-oshima13
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APP_002_GEN10_STEP3_2_NODE_OSHIMA13 }}
-          package: deployment-package.zip
-        env:
-          WEBSITE_NODE_DEFAULT_VERSION: "20-lts"
-          SCM_DO_BUILD_DURING_DEPLOYMENT: false
-          WEBSITE_RUN_FROM_PACKAGE: 1
+          package: app.zip
