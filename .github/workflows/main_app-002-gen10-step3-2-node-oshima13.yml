@@ -23,9 +23,22 @@ jobs:
         run: |
           rm -rf out_zip && mkdir -p out_zip
           
-          # ✅ Pure Standalone: Copy everything from .next/standalone
-          echo "📦 Copying standalone build (includes correct node_modules)..."
-          cp -r .next/standalone/* out_zip/
+          # ✅ Pure Standalone: Copy ALL files from .next/standalone (including hidden files)
+          echo "📦 Copying standalone build..."
+          # Use explicit copying to ensure all files including hidden ones
+          cp -r .next/standalone/. out_zip/
+          
+          # ✅ Verify node_modules/next exists
+          echo "🔍 Verifying Next.js module in standalone:"
+          if [ -f out_zip/node_modules/next/package.json ]; then
+            echo "✅ Next.js found in standalone node_modules"
+            cat out_zip/node_modules/next/package.json | grep '"version"'
+          else
+            echo "❌ Next.js NOT found in standalone!"
+            echo "📁 Contents of out_zip/node_modules:"
+            ls -la out_zip/node_modules/ 2>/dev/null || echo "node_modules directory not found"
+            exit 1
+          fi
           
           # ✅ Static assets
           echo "📁 Adding static assets..."
@@ -69,11 +82,18 @@ jobs:
           echo "📋 Standalone server.js content:"
           head -10 out_zip/server.js
           
+          # ✅ Final structure verification
+          echo "📊 Final package structure:"
+          echo "Root files:"
+          ls -la out_zip/
+          echo "Node modules (first 10):"
+          ls -la out_zip/node_modules/ | head -10
+          echo "Next.js dist directory:"
+          ls -la out_zip/node_modules/next/ | head -5
+          
           # ✅ Create deployment package
           (cd out_zip && zip -r ../app.zip .)
           
-          echo "📊 Final package structure:"
-          ls -la out_zip/
           echo "📦 Package size: $(du -h app.zip | cut -f1)"
 
       - uses: actions/upload-artifact@v4
