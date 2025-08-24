@@ -83,7 +83,7 @@ export default function HomePage() {
                 <Bell className="w-5 h-5" />
                 <div 
                   className="absolute -top-1 -right-1 w-3 h-3 rounded-full"
-                  style={{ backgroundColor: 'rgb(255, 235, 0)' }}
+                  style={{ backgroundColor: 'var(--pantone-yellow-500)' }}
                 ></div>
               </button>
               <button 
@@ -108,18 +108,10 @@ export default function HomePage() {
         {/* Welcome Section */}
         <div className="text-center">
           <h2 className="text-lg font-heading font-semibold mb-1 tracking-tight" style={{ color: 'var(--pantone-blue-800)' }}>
-            {isMounted ? (
-              <>おかえりなさい、{userProfile?.user.name || 'ゲスト'}さん</>
-            ) : (
-              <>おかえりなさい、ゲストさん</>
-            )}
+            おかえりなさい、{isMounted && userProfile?.user.name ? userProfile.user.name : 'ゲスト'}さん
           </h2>
           <p className="text-sm font-body" style={{ color: 'var(--pantone-blue-600)' }}>
-            {isMounted ? (
-              <>{userProfile?.primaryDog?.name || 'ワンちゃん'}と素敵な一日を過ごしましょう</>
-            ) : (
-              <>ワンちゃんと素敵な一日を過ごしましょう</>
-            )}
+            {isMounted && userProfile?.primaryDog?.name ? userProfile.primaryDog.name : 'ワンちゃん'}と素敵な一日を過ごしましょう
           </p>
         </div>
 

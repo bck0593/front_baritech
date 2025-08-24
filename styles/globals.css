@@ -111,6 +111,29 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* PANTONE Brand Colors */
+  --pantone-blue-50: #e6f2ff;
+  --pantone-blue-100: #b3d9ff;
+  --pantone-blue-200: #80c0ff;
+  --pantone-blue-300: #4da6ff;
+  --pantone-blue-400: #1a8dff;
+  --pantone-blue-500: #0066cc;
+  --pantone-blue-600: #003973;
+  --pantone-blue-700: #002a5c;
+  --pantone-blue-800: #001d40;
+  --pantone-blue-900: #001126;
+  
+  --pantone-yellow-50: #fffef5;
+  --pantone-yellow-100: #fffce6;
+  --pantone-yellow-200: #fff9cc;
+  --pantone-yellow-300: #fff6b3;
+  --pantone-yellow-400: #fff299;
+  --pantone-yellow-500: #ffeb00;
+  --pantone-yellow-600: #e6d300;
+  --pantone-yellow-700: #ccbb00;
+  --pantone-yellow-800: #b3a300;
+  --pantone-yellow-900: #998a00;
 }
 
 @layer base {
