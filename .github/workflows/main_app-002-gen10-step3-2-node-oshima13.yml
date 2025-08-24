@@ -73,15 +73,8 @@ jobs:
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v2
         with:
           app-name: 'app-002-gen10-step3-2-node-oshima13'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CC79AF4AC4AF4ED58A9DC4A4EDE57EF8 }}
           package: .
-          clean: true
-          restart: true
-        env:
-          SCM_DO_BUILD_DURING_DEPLOYMENT: false
-          ENABLE_ORYX_BUILD: false
-          POST_BUILD_SCRIPT_PATH: ""
-          PRE_BUILD_SCRIPT_PATH: ""
