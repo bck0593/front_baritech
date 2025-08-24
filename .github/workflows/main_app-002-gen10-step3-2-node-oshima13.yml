@@ -31,6 +31,24 @@ jobs:
           [ -d public ] && cp -r public out_zip/public || true
           [ -d photo ] && cp -r photo out_zip/public/photo || true
           [ -f .env.production ] && cp .env.production out_zip/.env.production || true
+          
+          # ★ Azure Linux App Service 用の起動設定
+          echo '#!/bin/bash' > out_zip/startup.sh
+          echo 'export NODE_ENV=production' >> out_zip/startup.sh
+          echo 'exec node server.js' >> out_zip/startup.sh
+          chmod +x out_zip/startup.sh
+          
+          # ★ package.json の scripts.start を設定
+          if [ -f out_zip/package.json ]; then
+            # package.jsonのstartスクリプトを書き換え
+            node -e "
+              const pkg = JSON.parse(require('fs').readFileSync('out_zip/package.json', 'utf8'));
+              pkg.scripts = pkg.scripts || {};
+              pkg.scripts.start = 'node server.js';
+              require('fs').writeFileSync('out_zip/package.json', JSON.stringify(pkg, null, 2));
+            "
+          fi
+          
           # ★ zip 化（Run From Package 用）
           (cd out_zip && zip -r ../app.zip .)
           echo "A方式構造確認:"
@@ -55,4 +73,3 @@ jobs:
           app-name: app-002-gen10-step3-2-node-oshima13
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APP_002_GEN10_STEP3_2_NODE_OSHIMA13 }}
           package: app.zip
-          startup-command: '/bin/sh -c "cd /home/site/wwwroot/.next/standalone && export NODE_ENV=production && exec node server.js"'
