@@ -1,4 +1,4 @@
-# DogMATEs Azure App Service デプロイワークフロー
+# DogMATEs Azure App Service デプロイワークフロー - Flat Standalone方式
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
@@ -9,6 +9,10 @@ on:
     branches:
       - main
   workflow_dispatch:
+
+concurrency:
+  group: app-002-gen10
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -32,22 +36,49 @@ jobs:
           NODE_ENV: production
           NEXT_PUBLIC_USE_MOCK_DATA: false
 
-      - name: Copy app.json and web.config to standalone directory
+      - name: Prepare flat standalone artifact for Azure
         run: |
-          echo "✅ app.json、web.configをコピーしました（Azure App Service用）"
-          cp app.json .next/standalone/
-          cp web.config .next/standalone/
-          echo "✅ Next.js標準構成でデプロイ準備完了"
-          echo "📁 server.js: Next.js standalone標準エントリーポイント"
-          echo "📁 app.json: node server.js起動設定"
-          echo "📁 web.config: Azure App Service設定"
-          ls -la .next/standalone/server.js .next/standalone/app.json .next/standalone/web.config
+          echo "🚀 Preparing flat standalone deployment for Azure App Service..."
+          rm -rf out_zip && mkdir -p out_zip
+          
+          # 肝：standalone の中身をルート直下に展開
+          echo "📦 Copying standalone content to root..."
+          cp -r .next/standalone/* out_zip/
+          
+          # 静的ファイルを正しいパスに配置
+          echo "📁 Setting up static files..."
+          mkdir -p out_zip/.next
+          cp -r .next/static out_zip/.next/static
+          
+          # publicディレクトリもコピー
+          echo "🌐 Copying public assets..."
+          cp -r public out_zip/public || true
+          
+          # 環境設定ファイル
+          echo "⚙️ Copying environment config..."
+          [ -f .env.production ] && cp .env.production out_zip/.env.production || true
+          
+          # カスタムserver.jsを上書き（Azure最適化版）
+          echo "� Deploying Azure-optimized server.js..."
+          cp server.js out_zip/server.js
+          
+          # web.configも追加（Azure App Service用）
+          echo "🌐 Adding web.config for Azure..."
+          cp web.config out_zip/web.config
+          
+          echo "✅ Flat standalone artifact prepared successfully"
+          echo "📋 Contents check:"
+          ls -la out_zip/
+          echo "📋 Node modules check:"
+          ls -la out_zip/node_modules/ | head -10
+          echo "📋 Next.js check:"
+          ls -la out_zip/node_modules/next/ | head -5
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .next/standalone/
+          path: out_zip/
 
   deploy:
     runs-on: ubuntu-latest
