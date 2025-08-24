@@ -19,40 +19,29 @@ jobs:
       - run: npm ci
       - run: NEXT_TELEMETRY_DISABLED=1 npm run build  # next.config に output:'standalone' 必須
 
-      - name: Prepare A方式 flat-standalone & zip
+      - name: Prepare Pure Standalone Build
         run: |
-          rm -rf out_zip && mkdir -p out_zip/.next
-          # ★ A方式: standalone をルートに展開
+          rm -rf out_zip && mkdir -p out_zip
+          
+          # ✅ Pure Standalone: .next/standalone has everything needed
+          echo "📦 Copying standalone build..."
           cp -r .next/standalone/* out_zip/
-          # ★ 静的アセットは .next/static のまま（standaloneの隣）
+          
+          # ✅ Static assets (.next/static)
+          echo "📁 Adding static assets..."
           mkdir -p out_zip/.next
           cp -r .next/static out_zip/.next/static
-          # 公開ファイル
+          
+          # ✅ Public files (images, etc.)
+          echo "🖼️ Adding public files..."
           [ -d public ] && cp -r public out_zip/public || true
           [ -d photo ] && cp -r photo out_zip/public/photo || true
+          
+          # ✅ Environment file
           [ -f .env.production ] && cp .env.production out_zip/.env.production || true
           
-          # ★ node_modules を圧縮して追加（549MB → 軽量化）
-          echo "node_modules圧縮中..."
-          tar -czf node_modules.tar.gz node_modules
-          mv node_modules.tar.gz out_zip/
-          echo "node_modules.tar.gz作成完了"
-          
-          # ★ Azure Linux App Service 用の起動設定
-          echo '#!/bin/bash' > out_zip/startup.sh
-          echo 'cd /home/site/wwwroot' >> out_zip/startup.sh
-          echo 'if [ -f node_modules.tar.gz ] && [ ! -d node_modules ]; then' >> out_zip/startup.sh
-          echo '  echo "node_modules展開中..."' >> out_zip/startup.sh
-          echo '  tar -xzf node_modules.tar.gz' >> out_zip/startup.sh
-          echo '  echo "node_modules展開完了"' >> out_zip/startup.sh
-          echo 'fi' >> out_zip/startup.sh
-          echo 'export NODE_ENV=production' >> out_zip/startup.sh
-          echo 'exec node server.js' >> out_zip/startup.sh
-          chmod +x out_zip/startup.sh
-          
-          # ★ package.json の scripts.start を設定
+          # ✅ Ensure package.json start script
           if [ -f out_zip/package.json ]; then
-            # package.jsonのstartスクリプトを書き換え
             node -e "
               const pkg = JSON.parse(require('fs').readFileSync('out_zip/package.json', 'utf8'));
               pkg.scripts = pkg.scripts || {};
@@ -61,11 +50,16 @@ jobs:
             "
           fi
           
-          # ★ zip 化（Run From Package 用）
+          # ✅ Create deployment package
           (cd out_zip && zip -r ../app.zip .)
-          echo "A方式構造確認:"
+          
+          # 📊 Verify structure
+          echo "✅ Standalone build structure:"
           ls -la out_zip/
-          ls -la out_zip/.next/
+          echo "📁 Dependencies included:"
+          ls -la out_zip/node_modules/ | head -10
+          echo "🔍 Next.js module:"
+          ls -la out_zip/node_modules/next/ | head -5
 
       - uses: actions/upload-artifact@v4
         with:
@@ -80,6 +74,7 @@ jobs:
         with:
           name: app-zip
           path: .
+      
       - uses: azure/webapps-deploy@v3
         with:
           app-name: app-002-gen10-step3-2-node-oshima13
