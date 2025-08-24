@@ -1,0 +1,83 @@
+name: Build and deploy Node.js app to Azure Web App - app-002-gen10-step3-2-node-oshima13
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: azure-deploy
+  cancel-in-progress: false
+
+env:
+  NODE_ENV: production
+  NPM_CONFIG_LOGLEVEL: info
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          # cache: 'npm'  # Disabled intentionally to force full rebuild
+
+      - name: Force clean installation
+        run: |
+          echo "Forcing clean installation to avoid cache issues..."
+          rm -rf node_modules package-lock.json .next || true
+          npm cache clean --force
+
+      - name: Install dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npm list --depth=0 || true
+
+      - name: Build application
+        run: |
+          echo "Building Next.js application..."
+          npx next build
+          echo "=== Build completed ==="
+          ls -la .next/ || echo "No .next directory found"
+          ls -la .next/standalone/ || echo "No standalone directory found"
+
+      - name: Prepare deployment package
+        run: |
+          echo "Preparing deployment package..."
+          mkdir -p deploy-package
+          cp -r .next/standalone/* deploy-package/
+          mkdir -p deploy-package/.next/static
+          cp -r .next/static/* deploy-package/.next/static/ 2>/dev/null || echo "No static files to copy"
+          mkdir -p deploy-package/public
+          cp -r public/* deploy-package/public/ 2>/dev/null || echo "No public files to copy"
+          cp server.js deploy-package/ 2>/dev/null || echo "No server.js to copy"
+
+          cat > deploy-package/package.json << 'EOF'
+          {
+            "name": "dogmates-app",
+            "version": "1.0.0",
+            "private": true,
+            "scripts": {
+              "start": "node server.js"
+            },
+            "engines": {
+              "node": ">=20.0.0"
+            }
+          }
+          EOF
+
+          cd deploy-package
+          zip -r ../deployment.zip .
+          cd ..
+          ls -la deployment.zip
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: app-002-gen10-step3-2-node-oshima13
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APP_002_GEN10_STEP3_2_NODE_OSHIMA13 }}
+          package: deployment.zip
