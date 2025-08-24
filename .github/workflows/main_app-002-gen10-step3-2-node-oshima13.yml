@@ -32,18 +32,16 @@ jobs:
           NODE_ENV: production
           NEXT_PUBLIC_USE_MOCK_DATA: false
 
-      - name: Copy startup.js, app.json, and web.config to standalone directory
+      - name: Copy app.json and web.config to standalone directory
         run: |
-          echo "✅ startup.js、app.json、web.configをコピーしました（Azure App Service用）"
-          cp startup.js .next/standalone/
+          echo "✅ app.json、web.configをコピーしました（Azure App Service用）"
           cp app.json .next/standalone/
           cp web.config .next/standalone/
-          echo "✅ SSR対応修正済みファイルの確認完了"
-          echo "📁 auth-context.tsx: SSR互換性対応済み"
-          echo "📁 page.tsx: Hydrationエラー修正済み" 
-          echo "📁 client-wrapper.tsx: SSRラッパー対応済み"
-          echo "📁 layout.tsx: ClientWrapper統合済み"
-          ls -la .next/standalone/startup.js .next/standalone/app.json .next/standalone/web.config
+          echo "✅ Next.js標準構成でデプロイ準備完了"
+          echo "📁 server.js: Next.js standalone標準エントリーポイント"
+          echo "📁 app.json: node server.js起動設定"
+          echo "📁 web.config: Azure App Service設定"
+          ls -la .next/standalone/server.js .next/standalone/app.json .next/standalone/web.config
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
