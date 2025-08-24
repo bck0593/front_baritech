@@ -22,9 +22,14 @@ const nextConfig = {
     unoptimized: true,
   },
   
+  // Azure App Service最適化
+  trailingSlash: false,
+  
   experimental: {
     // 有効なオプションのみ
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    // デプロイメント最適化
+    outputFileTracingRoot: process.cwd(),
   },
   
   webpack: (config, { isServer, dev }) => {
