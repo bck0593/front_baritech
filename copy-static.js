@@ -60,6 +60,14 @@ async function copyStatic() {
       console.log('✅ web.configをコピーしました（Azure App Service用）');
     }
     
+    // startup.jsをコピー（Azure App Service用）
+    const startupSrc = path.join(process.cwd(), 'startup.js');
+    const startupDest = path.join(standaloneDir, 'startup.js');
+    if (await fs.pathExists(startupSrc)) {
+      await fs.copy(startupSrc, startupDest, { overwrite: true });
+      console.log('✅ startup.jsをコピーしました（Azure App Service用）');
+    }
+    
     console.log('🎉 静的ファイルのコピーが完了しました！');
   } catch (error) {
     console.error('❌ 静的ファイルのコピー中にエラーが発生しました:', error);
