@@ -40,8 +40,16 @@ jobs:
             .next/standalone/
             .next/static/
             public/
+            app/
+            components/
+            contexts/
+            hooks/
+            lib/
+            styles/
             package.json
             server.js
+            next.config.mjs
+            web.config
 
   deploy:
     runs-on: ubuntu-latest
@@ -70,3 +78,6 @@ jobs:
           package: .
           clean: true
           restart: true
+        env:
+          SCM_DO_BUILD_DURING_DEPLOYMENT: false
+          WEBSITE_RUN_FROM_PACKAGE: 0
