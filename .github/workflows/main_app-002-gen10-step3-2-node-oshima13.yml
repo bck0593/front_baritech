@@ -1,5 +1,13 @@
 # DogMATEs Azure App Service デプロイワークフロー
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# Docs for the Azure Web Apps De      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'app-002-gen10-step3-2-node-oshima13'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_APP_002_GEN10_STEP3_2_NODE_OSHIMA13 }}
+          package: .
+          clean: true
+          restart: true https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
 name: Build and deploy Node.js app to Azure Web App - app-002-gen10-step3-2-node-oshima13
@@ -47,9 +55,11 @@ jobs:
             lib/
             styles/
             package.json
+            package-lock.json
             server.js
             next.config.mjs
             web.config
+            tsconfig.json
 
   deploy:
     runs-on: ubuntu-latest
