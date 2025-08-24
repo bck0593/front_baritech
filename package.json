@@ -11,8 +11,8 @@
     "build": "NODE_OPTIONS='--max-old-space-size=1024' next build && node copy-static.js",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "NODE_OPTIONS='--max-old-space-size=1024' node .next/standalone/server.js",
-    "azure:start": "NODE_OPTIONS='--max-old-space-size=1024' node .next/standalone/server.js",
+    "start": "node startup.js",
+    "azure:start": "node startup.js",
     "deploy": "npm ci --production=false && npm run build && npm run azure:start",
     "test:api": "echo 'API connection test - implement with your FastAPI backend'",
     "type-check": "tsc --noEmit"
