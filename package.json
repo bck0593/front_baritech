@@ -8,7 +8,7 @@
     "npm": ">=8.0.0"
   },
   "scripts": {
-    "build": "NODE_OPTIONS='--max-old-space-size=2048' next build && node copy-static.js",
+    "build": "NODE_OPTIONS='--max-old-space-size=1024' next build && node copy-static.js",
     "dev": "next dev",
     "lint": "next lint",
     "start": "NODE_OPTIONS='--max-old-space-size=1024' node server.js",

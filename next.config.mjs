@@ -28,9 +28,10 @@ const nextConfig = {
   experimental: {
     // 有効なオプションのみ
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    // デプロイメント最適化
-    outputFileTracingRoot: process.cwd(),
   },
+  
+  // デプロイメント最適化（experimental外に移動）
+  outputFileTracingRoot: process.cwd(),
   
   webpack: (config, { isServer, dev }) => {
     if (!isServer) {
