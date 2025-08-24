@@ -74,6 +74,13 @@ jobs:
         with:
           name: app-zip
           path: .
+      
+      # Add delay to avoid SCM container restart conflicts
+      - name: Wait for Azure stability
+        run: |
+          echo "⏳ Waiting 30 seconds to avoid SCM container conflicts..."
+          sleep 30
+      
       - uses: azure/webapps-deploy@v3
         with:
           app-name: app-002-gen10-step3-2-node-oshima13
