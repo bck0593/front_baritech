@@ -23,16 +23,16 @@ jobs:
         run: |
           rm -rf out_zip && mkdir -p out_zip
           
-          # ✅ Pure Standalone: .next/standalone has everything needed
-          echo "📦 Copying standalone build..."
+          # ✅ Pure Standalone: Copy everything from .next/standalone
+          echo "📦 Copying standalone build (includes correct node_modules)..."
           cp -r .next/standalone/* out_zip/
           
-          # ✅ Static assets (.next/static)
+          # ✅ Static assets
           echo "📁 Adding static assets..."
           mkdir -p out_zip/.next
           cp -r .next/static out_zip/.next/static
           
-          # ✅ Public files (images, etc.)
+          # ✅ Public files
           echo "🖼️ Adding public files..."
           [ -d public ] && cp -r public out_zip/public || true
           [ -d photo ] && cp -r photo out_zip/public/photo || true
@@ -40,26 +40,26 @@ jobs:
           # ✅ Environment file
           [ -f .env.production ] && cp .env.production out_zip/.env.production || true
           
-          # ✅ Ensure package.json start script
-          if [ -f out_zip/package.json ]; then
-            node -e "
-              const pkg = JSON.parse(require('fs').readFileSync('out_zip/package.json', 'utf8'));
-              pkg.scripts = pkg.scripts || {};
-              pkg.scripts.start = 'node server.js';
-              require('fs').writeFileSync('out_zip/package.json', JSON.stringify(pkg, null, 2));
-            "
+          # ✅ Verify standalone includes Next.js
+          echo "🔍 Verifying Next.js module in standalone:"
+          if [ -f out_zip/node_modules/next/package.json ]; then
+            echo "✅ Next.js found in standalone node_modules"
+            cat out_zip/node_modules/next/package.json | grep '"version"'
+          else
+            echo "❌ Next.js NOT found in standalone!"
+            exit 1
           fi
+          
+          # ✅ Verify server.js
+          echo "📋 Standalone server.js content:"
+          head -10 out_zip/server.js
           
           # ✅ Create deployment package
           (cd out_zip && zip -r ../app.zip .)
           
-          # 📊 Verify structure
-          echo "✅ Standalone build structure:"
+          echo "📊 Final package structure:"
           ls -la out_zip/
-          echo "📁 Dependencies included:"
-          ls -la out_zip/node_modules/ | head -10
-          echo "🔍 Next.js module:"
-          ls -la out_zip/node_modules/next/ | head -5
+          echo "📦 Package size: $(du -h app.zip | cut -f1)"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -74,7 +74,6 @@ jobs:
         with:
           name: app-zip
           path: .
-      
       - uses: azure/webapps-deploy@v3
         with:
           app-name: app-002-gen10-step3-2-node-oshima13
