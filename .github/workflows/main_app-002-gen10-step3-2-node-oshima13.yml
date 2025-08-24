@@ -32,8 +32,20 @@ jobs:
           [ -d photo ] && cp -r photo out_zip/public/photo || true
           [ -f .env.production ] && cp .env.production out_zip/.env.production || true
           
+          # ★ node_modules を圧縮して追加（549MB → 軽量化）
+          echo "node_modules圧縮中..."
+          tar -czf node_modules.tar.gz node_modules
+          mv node_modules.tar.gz out_zip/
+          echo "node_modules.tar.gz作成完了"
+          
           # ★ Azure Linux App Service 用の起動設定
           echo '#!/bin/bash' > out_zip/startup.sh
+          echo 'cd /home/site/wwwroot' >> out_zip/startup.sh
+          echo 'if [ -f node_modules.tar.gz ] && [ ! -d node_modules ]; then' >> out_zip/startup.sh
+          echo '  echo "node_modules展開中..."' >> out_zip/startup.sh
+          echo '  tar -xzf node_modules.tar.gz' >> out_zip/startup.sh
+          echo '  echo "node_modules展開完了"' >> out_zip/startup.sh
+          echo 'fi' >> out_zip/startup.sh
           echo 'export NODE_ENV=production' >> out_zip/startup.sh
           echo 'exec node server.js' >> out_zip/startup.sh
           chmod +x out_zip/startup.sh
