@@ -8,6 +8,13 @@ export interface MockUser {
 
 export const mockUsers: MockUser[] = [
   {
+    id: "0",
+    name: "テストユーザー",
+    email: "user@example.com",
+    role: "user",
+    password: "string",
+  },
+  {
     id: "1",
     name: "田中太郎",
     email: "tanaka@example.com",

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -39,6 +39,9 @@ export function PhotoSlider({ className = '' }: PhotoSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
 
+  // 画像リストをメモ化して再レンダリングを抑制
+  const memoizedPhotos = useMemo(() => photos, [])
+
   // 自動スライド
   // 各スライドに対応する文章
   const slideTexts = [
@@ -70,21 +73,21 @@ export function PhotoSlider({ className = '' }: PhotoSliderProps) {
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => 
-        prevIndex === photos.length - 1 ? 0 : prevIndex + 1
+        prevIndex === memoizedPhotos.length - 1 ? 0 : prevIndex + 1
       )
     }, 8000) // 8秒間隔
 
     return () => clearInterval(interval)
-  }, [isAutoPlaying])
+  }, [isAutoPlaying]) // currentIndexは依存配列に含めない（setStateの関数形式を使っているため）
 
   const goToPrevious = () => {
-    setCurrentIndex(currentIndex === 0 ? photos.length - 1 : currentIndex - 1)
+    setCurrentIndex(currentIndex === 0 ? memoizedPhotos.length - 1 : currentIndex - 1)
     setIsAutoPlaying(false)
     setTimeout(() => setIsAutoPlaying(true), 8000)
   }
 
   const goToNext = () => {
-    setCurrentIndex(currentIndex === photos.length - 1 ? 0 : currentIndex + 1)
+    setCurrentIndex(currentIndex === memoizedPhotos.length - 1 ? 0 : currentIndex + 1)
     setIsAutoPlaying(false)
     setTimeout(() => setIsAutoPlaying(true), 8000)
   }
@@ -108,17 +111,23 @@ export function PhotoSlider({ className = '' }: PhotoSliderProps) {
           className="absolute inset-0"
         >
           <img
-            src={photos[currentIndex].src}
-            alt={photos[currentIndex].alt}
+            src={memoizedPhotos[currentIndex].src}
+            alt={memoizedPhotos[currentIndex].alt}
             className="w-full h-full object-cover"
             style={{
               objectPosition: 'center center',
             }}
             onError={(e) => {
-              console.error('Image failed to load:', photos[currentIndex].src);
+              if (process.env.NODE_ENV === 'development') {
+                console.error('Image failed to load:', memoizedPhotos[currentIndex].src);
+              }
               e.currentTarget.src = '/placeholder.jpg';
             }}
-            onLoad={() => console.log('Image loaded:', photos[currentIndex].src)}
+            onLoad={() => {
+              if (process.env.NODE_ENV === 'development') {
+                console.log('Image loaded:', memoizedPhotos[currentIndex].src);
+              }
+            }}
           />
           
           {/* より軽やかなグラデーション */}
@@ -180,7 +189,7 @@ export function PhotoSlider({ className = '' }: PhotoSliderProps) {
 
       {/* ミニマルなインジケーター（右下に配置） */}
       <div className="absolute bottom-4 right-4 flex gap-2">
-        {photos.map((_, index) => (
+        {memoizedPhotos.map((_, index) => (
           <button
             key={index}
             className={`transition-all duration-500 rounded-full border border-white/50 ${
@@ -209,3 +218,5 @@ export function PhotoSlider({ className = '' }: PhotoSliderProps) {
     </div>
   )
 }
+
+export default PhotoSlider

@@ -37,3 +37,5 @@ export function PageHeader({ title, subtitle, showBackButton = false }: PageHead
     </div>
   )
 }
+
+export default PageHeader

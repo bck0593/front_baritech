@@ -1,12 +1,39 @@
-// データベースのテーブル構造に対応した型定義
+// データベースのテーブル構造に対応した型定義（バックエンドスキーマに合わせて修正）
 
-// ユーザー関連
+// ===============================
+// ユーザー関連 - バックエンドスキーマに準拠
+// ===============================
+
+// UserStatus enum (from backend) - 日本語値
+export type UserStatus = '有効' | '無効' | '停止'
+
+// UserRole enum (from backend) - 日本語値
+export type UserRole = '利用者' | '管理者' | 'スーパー管理者'
+
+// ServiceType enum (from backend) - 日本語値
+export type ServiceType = '体験' | '保育園' | 'イベント' | 'その他'
+
+// BookingStatus enum (from backend) - 日本語値
+export type BookingStatus = '受付中' | '確定' | '完了' | '取消'
+
+// PaymentStatus enum (from backend) - 日本語値
+export type PaymentStatus = '未払い' | '支払い済み' | '返金済み'
+
+// サービス設定用の型（管理画面で使用）
+export interface ServiceTypeOption {
+  id: string
+  name: string
+  description?: string
+  price?: number
+}
+
+// ユーザー関連 - バックエンドUserOutスキーマに合わせて修正
 export interface User {
   id: string
   name: string
   email: string
-  status: '有効' | '無効' | '停止'
-  role: '利用者' | '管理者' | 'スーパー管理者'
+  status: UserStatus
+  role: UserRole
   created_at: string
   updated_at: string
 }
@@ -15,24 +42,37 @@ export interface CreateUserRequest {
   name: string
   email: string
   password: string
-  role: '利用者' | '管理者' | 'スーパー管理者'
+  role?: UserRole // オプショナル（デフォルトはUSER）
 }
 
 export interface UpdateUserRequest {
   name?: string
   email?: string
-  status?: '有効' | '無効' | '停止'
-  role?: '利用者' | '管理者' | 'スーパー管理者'
+  status?: UserStatus
+  role?: UserRole
 }
 
-// 飼い主関連
+// 認証関連 - バックエンドスキーマに合わせて追加
+export interface LoginRequest {
+  email: string
+  password: string
+}
+
+export interface TokenResponse {
+  access_token: string
+  token_type: string
+}
+
+// 飼い主関連 - バックエンドに合わせて修正
 export interface Owner {
   id: string
   name: string
   email: string
   phone?: string
   avatar?: string
-  created_at: string
+  user_id?: string // バックエンドではuser_idがある
+  created_at?: string
+  updated_at?: string
 }
 
 export interface CreateOwnerRequest {
@@ -40,6 +80,7 @@ export interface CreateOwnerRequest {
   email: string
   phone?: string
   avatar?: string
+  user_id?: string
 }
 
 export interface UpdateOwnerRequest {
@@ -49,16 +90,18 @@ export interface UpdateOwnerRequest {
   avatar?: string
 }
 
-// 犬関連
+// 犬関連 - バックエンドスキーマに合わせて修正
 export interface Dog {
   id: string
   owner_id: string
   name: string
   breed?: string
   sex?: string
-  birthdate?: string
+  birthdate?: string // ISO date string
   avatar?: string
   notes?: string
+  created_at?: string
+  updated_at?: string
   // 関連データ
   owner?: Owner
 }
@@ -82,27 +125,63 @@ export interface UpdateDogRequest {
   notes?: string
 }
 
-// 予約関連
+// 予約関連 - バックエンドBookingOutスキーマに合わせて修正
 export interface Booking {
   id: string
   owner_id: string
   dog_id: string
-  service_type: '体験' | '保育園' | 'イベント' | 'その他'
-  booking_date: string
-  booking_time: string
-  status: '受付中' | '確定' | '完了' | '取消'
+  service_type: ServiceType
+  booking_date: string // ISO date string
+  booking_time: string // ISO time string
+  status: BookingStatus
   amount?: number
-  payment_status: '未払い' | '支払い済み' | '返金済み'
+  payment_status: PaymentStatus
   memo?: string
-  // 関連データ
+  // 関連データ（バックエンドでは含まれないが、フロントエンド用に拡張）
   owner?: Owner
   dog?: Dog
 }
 
 export interface CreateBookingRequest {
+  dog_id: string
+  service_type: ServiceType
+  booking_date: string
+  booking_time: string
+  amount?: number
+  memo?: string
+}
+
+export interface UpdateBookingRequest {
+  status?: BookingStatus
+  amount?: number
+  payment_status?: PaymentStatus
+  memo?: string
+}
+
+// 予約リスト用（バックエンドBookingListResponseスキーマ）
+export interface BookingListQuery {
+  owner_id?: string
+  dog_id?: string
+  date_from?: string
+  date_to?: string
+  status?: BookingStatus
+  service_type?: ServiceType
+  page?: number
+  size?: number
+}
+
+export interface BookingListResponse {
+  items: Booking[]
+  total: number
+  page: number
+  size: number
+  pages: number
+}
+
+export interface CreateBookingRequest {
   owner_id: string
   dog_id: string
-  service_type: '体験' | '保育園' | 'イベント' | 'その他'
+  service_type: ServiceType
   booking_date: string
   booking_time: string
   amount?: number
@@ -112,9 +191,9 @@ export interface CreateBookingRequest {
 export interface UpdateBookingRequest {
   booking_date?: string
   booking_time?: string
-  status?: '受付中' | '確定' | '完了' | '取消'
+  status?: BookingStatus
   amount?: number
-  payment_status?: '未払い' | '支払い済み' | '返金済み'
+  payment_status?: PaymentStatus
   memo?: string
 }
 
@@ -239,9 +318,15 @@ export interface DogSearchParams extends SearchParams {
 }
 
 export interface BookingSearchParams extends SearchParams {
+  user_id?: string
+  owner_id?: string
+  dog_id?: string
+  service_type?: ServiceType
+  status?: BookingStatus
+  start_date?: string
+  end_date?: string
+  payment_status?: PaymentStatus
   date?: string
-  status?: '受付中' | '確定' | '完了' | '取消'
-  service_type?: '体験' | '保育園' | 'イベント' | 'その他'
 }
 
 // マスターデータ関連
@@ -249,13 +334,6 @@ export interface Breed {
   id: string
   name: string
   category?: string
-}
-
-export interface ServiceType {
-  id: string
-  name: string
-  description?: string
-  price?: number
 }
 
 // 設定・評価関連のオプション（現在ハードコーディングされているもの）
@@ -301,58 +379,50 @@ export interface CreateDogEvaluationRequest {
   notes?: string
 }
 
-// イベント関連
+// イベント関連 - WalkEventOutスキーマに合わせて修正
 export interface Event {
   id: string
   title: string
-  description: string
-  date: string
-  startTime: string
-  endTime: string
+  description?: string
+  event_date: string // バックエンドフィールド名に合わせる
+  start_time: string // バックエンドフィールド名に合わせる
+  type?: string // バックエンドフィールド名に合わせる
   location: string
-  organizer: string
-  category: string
-  price: string | number
+  capacity: number
+  fee?: number // バックエンドフィールド名に合わせる
+  sponsor_name?: string
+  sponsor_gift?: string
   status: string
-  image?: string
-  details: string
-  benefits?: string[]
-  target?: string[]
-  createdAt: string
-  updatedAt: string
+  organizer_user_id: string // バックエンドフィールド名に合わせる
+  created_at: string
 }
 
 export interface CreateEventRequest {
   title: string
-  description: string
-  date: string
-  startTime: string
-  endTime: string
+  description?: string
+  event_date: string // バックエンドフィールド名に合わせる
+  start_time: string // バックエンドフィールド名に合わせる
+  type?: string // バックエンドフィールド名に合わせる
   location: string
-  organizer: string
-  category: string
-  price: string | number
-  image?: string
-  details: string
-  benefits?: string[]
-  target?: string[]
+  capacity: number
+  fee?: number // バックエンドフィールド名に合わせる
+  sponsor_name?: string
+  sponsor_gift?: string
+  organizer_user_id?: string // バックエンドで自動設定される場合があるのでオプショナル
 }
 
 export interface UpdateEventRequest {
   title?: string
   description?: string
-  date?: string
-  startTime?: string
-  endTime?: string
+  event_date?: string
+  start_time?: string
+  type?: string
   location?: string
-  organizer?: string
-  category?: string
-  price?: string | number
+  capacity?: number
+  fee?: number
+  sponsor_name?: string
+  sponsor_gift?: string
   status?: string
-  image?: string
-  details?: string
-  benefits?: string[]
-  target?: string[]
 }
 
 export interface EventSearchParams {

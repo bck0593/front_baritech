@@ -1,6 +1,15 @@
 import { Owner } from '../types'
 
 export const mockOwners: Owner[] = [
+  // user@example.com用のオーナー
+  {
+    id: "0",
+    name: "テストユーザー",
+    email: "user@example.com",
+    phone: "090-0000-0000",
+    avatar: "/placeholder.svg?height=40&width=40",
+    created_at: "2024-01-10T00:00:00Z",
+  },
   {
     id: "1",
     name: "田中太郎",

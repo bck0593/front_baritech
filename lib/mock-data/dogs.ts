@@ -1,6 +1,17 @@
 import { Dog } from '../types'
 
 export const mockDogs: Dog[] = [
+  // user@example.com用の犬
+  {
+    id: "user-dog-1",
+    owner_id: "0",
+    name: "タロウ",
+    breed: "柴犬",
+    sex: "オス",
+    birthdate: "2020-03-10",
+    avatar: "/placeholder.svg?height=40&width=40",
+    notes: "元気で活発、散歩が大好き",
+  },
   {
     id: "1",
     owner_id: "1",

@@ -58,7 +58,7 @@ export default function ServiceDetailPage() {
     dogrun: {
       id: "dogrun",
       name: "ドッグラン利用",
-      price: "¥800",
+      price: "¥100",
       duration: "1時間",
       description: "里山の自然豊かなドッグランで自由に遊べます。小型犬専用エリアもあります。",
       features: ["広々とした敷地", "小型犬専用エリア", "水飲み場完備", "ベンチ・休憩スペース"],

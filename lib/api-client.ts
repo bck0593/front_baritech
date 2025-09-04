@@ -1,6 +1,6 @@
-import { API_CONFIG, USE_MOCK_DATA } from './api-config'
+import { API_CONFIG, USE_MOCK_DATA, HEALTH_CHECK_ENDPOINT } from './api-config'
 
-// 共通のAPIレスポンス型
+// 共通のAPIレスポンス型（バックエンドがPydanticモデルを直接返すため）
 export interface ApiResponse<T> {
   success: boolean
   data?: T
@@ -25,12 +25,12 @@ interface RequestOptions {
   headers?: Record<string, string>
   body?: any
   timeout?: number
+  requireAuth?: boolean
 }
 
-// 認証トークン管理
+// 認証トークン管理（バックエンドJWT対応）
 class TokenManager {
   private static instance: TokenManager
-  private token: string | null = null
 
   static getInstance(): TokenManager {
     if (!TokenManager.instance) {
@@ -40,30 +40,91 @@ class TokenManager {
   }
 
   setToken(token: string): void {
-    this.token = token
+    console.log('🎫 TokenManager.setToken called:', token.substring(0, 50) + '...')
     if (typeof window !== 'undefined') {
       localStorage.setItem('auth_token', token)
+      console.log('🎫 Token saved to localStorage')
     }
   }
 
   getToken(): string | null {
-    if (this.token) return this.token
-    
+    // 常に最新のlocalStorageから取得（キャッシュしない）
     if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('auth_token')
+      const token = localStorage.getItem('auth_token')
+      
+      // トークンの有効期限をチェック
+      if (token && this.isTokenExpired(token)) {
+        console.log('🎫 Token expired, clearing...')
+        this.clearToken()
+        return null
+      }
+      
+      console.log('🎫 TokenManager.getToken:', token ? token.substring(0, 50) + '...' : 'null')
+      return token
     }
-    return this.token
+    return null
+  }
+
+  private isTokenExpired(token: string): boolean {
+    // フォールバックトークンの場合は期限切れでない
+    if (token.startsWith('fallback_token_') || token.startsWith('mock_token_')) {
+      return false
+    }
+    
+    try {
+      // JWT トークンのペイロード部分をデコード
+      const base64Url = token.split('.')[1]
+      if (!base64Url) {
+        // JWTトークンではない場合（base64Urlが存在しない）
+        return false
+      }
+      
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      )
+      const decoded = JSON.parse(jsonPayload)
+      
+      // 現在時刻と比較（5分のマージンを設ける）
+      const currentTime = Math.floor(Date.now() / 1000)
+      const expirationTime = decoded.exp
+      const margin = 5 * 60 // 5分
+      
+      const isExpired = currentTime >= (expirationTime - margin)
+      console.log('🎫 Token expiration check:', { 
+        currentTime, 
+        expirationTime, 
+        isExpired,
+        remainingSeconds: expirationTime - currentTime
+      })
+      
+      return isExpired
+    } catch (error) {
+      console.error('🎫 Failed to decode token:', error)
+      // デコード失敗時は、フォールバックトークンなら有効とみなす
+      return token.startsWith('fallback_token_') || token.startsWith('mock_token_') ? false : true
+    }
   }
 
   clearToken(): void {
-    this.token = null
+    console.log('🎫 TokenManager.clearToken called')
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_token')
     }
   }
+
+  isAuthenticated(): boolean {
+    const token = this.getToken()
+    const authenticated = !!token
+    console.log('🎫 TokenManager.isAuthenticated:', authenticated)
+    return authenticated
+  }
 }
 
-// APIクライアントクラス
+// APIクライアントクラス（バックエンド対応）
 class ApiClient {
   private baseURL: string
   private tokenManager: TokenManager
@@ -71,6 +132,23 @@ class ApiClient {
   constructor(baseURL: string) {
     this.baseURL = baseURL
     this.tokenManager = TokenManager.getInstance()
+  }
+
+  // TokenManager メソッドの公開
+  setToken(token: string): void {
+    this.tokenManager.setToken(token)
+  }
+
+  getToken(): string | null {
+    return this.tokenManager.getToken()
+  }
+
+  clearToken(): void {
+    this.tokenManager.clearToken()
+  }
+
+  isAuthenticated(): boolean {
+    return this.tokenManager.isAuthenticated()
   }
 
   private async makeRequest<T>(
@@ -81,7 +159,8 @@ class ApiClient {
       method = 'GET', 
       headers = {}, 
       body, 
-      timeout = API_CONFIG.TIMEOUT 
+      timeout = API_CONFIG.TIMEOUT,
+      requireAuth = true
     } = options
 
     const url = `${this.baseURL}${endpoint}`
@@ -92,10 +171,19 @@ class ApiClient {
       ...headers,
     }
 
-    // 認証トークンを追加
-    const token = this.tokenManager.getToken()
-    if (token) {
-      requestHeaders.Authorization = `Bearer ${token}`
+    // 認証トークンを追加（requireAuth が true の場合のみ）
+    if (requireAuth) {
+      const token = this.tokenManager.getToken()
+      console.log('🎫 ApiClient requesting token from TokenManager:', token ? token.substring(0, 50) + '...' : 'null')
+      
+      if (token) {
+        requestHeaders.Authorization = `Bearer ${token}`
+        console.log('🎫 Authorization header set:', `Bearer ${token.substring(0, 50)}...`)
+      } else {
+        console.log('❌ No token available for Authorization header')
+      }
+    } else {
+      console.log('🔓 Auth not required for this request')
     }
 
     // リクエスト設定
@@ -105,36 +193,112 @@ class ApiClient {
     }
 
     if (body && method !== 'GET') {
-      config.body = JSON.stringify(body)
+      // URLSearchParams の場合はそのまま、それ以外はJSONに変換
+      if (body instanceof URLSearchParams) {
+        config.body = body
+      } else {
+        config.body = JSON.stringify(body)
+      }
     }
 
     try {
       // タイムアウト制御
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), timeout)
+      const timeoutId = setTimeout(() => {
+        controller.abort()
+      }, timeout)
       config.signal = controller.signal
 
       const response = await fetch(url, config)
       clearTimeout(timeoutId)
 
+      // バックエンドレスポンス処理
       if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`)
+        // レスポンスの生データを確認
+        const rawText = await response.text()
+        
+        let errorDetail = `HTTP Error: ${response.status} ${response.statusText}`
+        
+        // 404/403エラーは静かに処理
+        if (response.status === 404) {
+          errorDetail = 'API endpoint not implemented'
+        } else if (response.status === 403) {
+          errorDetail = 'Access forbidden (missing owner record or permissions)'
+        }
+        
+        try {
+          // rawTextをJSONとしてパース試行
+          const errorData = JSON.parse(rawText)
+          
+          if (errorData.detail) {
+            errorDetail = errorData.detail
+          } else if (errorData.message) {
+            errorDetail = errorData.message
+          } else if (typeof errorData === 'string') {
+            errorDetail = errorData
+          }
+        } catch (parseError) {
+          // JSON parseに失敗した場合（HTMLエラーページなど）
+          if (rawText.includes('<html>') || rawText.includes('<!DOCTYPE')) {
+            errorDetail = 'Server returned HTML error page (likely Azure/proxy error)'
+          } else if (rawText) {
+            errorDetail = rawText.substring(0, 100) // 生テキストの一部を使用
+          }
+        }
+        
+        return {
+          success: false,
+          error: errorDetail
+        }
       }
 
       const data = await response.json()
-      return data
+      
+      // バックエンドはPydanticモデルを直接返すため、そのまま返す
+      return {
+        success: true,
+        data: data
+      }
 
     } catch (error) {
-      console.error('API Request Error:', error)
+      // より詳細なエラー分類とCORS診断
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          return {
+            success: false,
+            error: 'Request timeout - サーバーの応答が遅すぎます'
+          }
+        }
+        
+        if (error.message.includes('Failed to fetch')) {
+          return {
+            success: false,
+            error: 'Network/CORS Error - ネットワーク接続またはCORSの問題が発生しました。バックエンドのCORS設定を確認してください。'
+          }
+        }
+        
+        return {
+          success: false,
+          error: error.message
+        }
+      }
+      
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
+        error: 'Unknown error occurred'
       }
     }
   }
 
   // GET リクエスト
-  async get<T>(endpoint: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+  async get<T>(endpoint: string, options?: { headers?: Record<string, string>, requireAuth?: boolean }): Promise<ApiResponse<T>> {
+    const { headers, requireAuth = true } = options || {}
+    
+    // requireAuth が false の場合、認証ヘッダーを追加しない
+    if (!requireAuth) {
+      return this.makeRequest<T>(endpoint, { method: 'GET', headers })
+    }
+    
     return this.makeRequest<T>(endpoint, { method: 'GET', headers })
   }
 
@@ -142,32 +306,36 @@ class ApiClient {
   async post<T>(
     endpoint: string, 
     body?: any, 
-    headers?: Record<string, string>
+    options?: { headers?: Record<string, string>, requireAuth?: boolean }
   ): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(endpoint, { method: 'POST', body, headers })
+    const { headers, requireAuth = true } = options || {}
+    return this.makeRequest<T>(endpoint, { method: 'POST', body, headers, requireAuth })
   }
 
   // PUT リクエスト
   async put<T>(
     endpoint: string, 
     body?: any, 
-    headers?: Record<string, string>
+    options?: { headers?: Record<string, string>, requireAuth?: boolean }
   ): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(endpoint, { method: 'PUT', body, headers })
+    const { headers, requireAuth = true } = options || {}
+    return this.makeRequest<T>(endpoint, { method: 'PUT', body, headers, requireAuth })
   }
 
   // DELETE リクエスト
-  async delete<T>(endpoint: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(endpoint, { method: 'DELETE', headers })
+  async delete<T>(endpoint: string, options?: { headers?: Record<string, string>, requireAuth?: boolean }): Promise<ApiResponse<T>> {
+    const { headers, requireAuth = true } = options || {}
+    return this.makeRequest<T>(endpoint, { method: 'DELETE', headers, requireAuth })
   }
 
-  // PATCH リクエスト
+  // PATCH リクエスト（バックエンドの予約更新で使用）
   async patch<T>(
     endpoint: string, 
     body?: any, 
-    headers?: Record<string, string>
+    options?: { headers?: Record<string, string>, requireAuth?: boolean }
   ): Promise<ApiResponse<T>> {
-    return this.makeRequest<T>(endpoint, { method: 'PATCH', body, headers })
+    const { headers, requireAuth = true } = options || {}
+    return this.makeRequest<T>(endpoint, { method: 'PATCH', body, headers, requireAuth })
   }
 }
 
@@ -213,15 +381,15 @@ export function createMockPaginatedResponse<T>(
   })
 }
 
-// API接続状態チェック
+// API接続状態チェック（バックエンドの/healthzエンドポイント使用）
 export async function checkApiHealth(): Promise<boolean> {
   if (USE_MOCK_DATA) {
     return true // モックモードでは常にOK
   }
 
   try {
-    const response = await apiClient.get('/health')
-    return response.success
+    const response = await apiClient.get<{status: string}>(HEALTH_CHECK_ENDPOINT)
+    return response.success && response.data?.status === 'ok'
   } catch {
     return false
   }

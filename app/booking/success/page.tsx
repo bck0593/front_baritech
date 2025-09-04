@@ -16,6 +16,8 @@ export default function BookingSuccessPage() {
   const { setHasBooked } = useProfile()
 
   const bookingId = searchParams.get("bookingId")
+  const serviceId = searchParams.get("serviceId") 
+  const date = searchParams.get("date")
 
   useEffect(() => {
     setHasBooked(true)
@@ -110,7 +112,13 @@ export default function BookingSuccessPage() {
 
         {/* Action Buttons */}
         <div className="space-y-3">
-          <ThemedButton variant="primary" className="w-full py-3" onClick={() => router.push("/booking-detail")}>
+          <ThemedButton variant="primary" className="w-full py-3" onClick={() => {
+            const params = new URLSearchParams()
+            if (bookingId) params.set('id', bookingId)
+            if (serviceId) params.set('serviceId', serviceId) 
+            if (date) params.set('date', date)
+            router.push(`/booking-detail?${params.toString()}`)
+          }}>
             <Calendar className="w-4 h-4 mr-2" />
             予約詳細を確認
           </ThemedButton>

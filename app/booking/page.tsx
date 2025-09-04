@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Calendar, Clock, Dog, ChevronRight, List } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -8,11 +9,81 @@ import { ThemedCard, ThemedCardHeader, CardContent, CardTitle } from "@/componen
 import { ThemedButton } from "@/components/themed-button"
 import { useTheme } from "@/contexts/theme-context"
 import BottomNavigation from "@/components/bottom-navigation"
+import { BookingService } from "@/lib/api-services"
+import { useAuth } from "@/contexts/auth-context"
+import { Booking } from "@/lib/types"
 
 export default function BookingPage() {
   const router = useRouter()
   const { currentTheme } = useTheme()
-  // const { unlocked, completion, profile } = useProfile()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const [bookings, setBookings] = useState<Booking[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [lastFetchTime, setLastFetchTime] = useState(0) // API呼び出し頻度制限
+
+  const fetchBookings = async () => {
+    if (authLoading) return
+    
+    // 1秒以内の連続呼び出しを防ぐ
+    const now = Date.now()
+    if (now - lastFetchTime < 1000) {
+      console.log('🚫 [BOOKING] API呼び出し頻度制限 - スキップ')
+      return
+    }
+    
+    setLoading(true)
+    setError(null)
+    setLastFetchTime(now)
+    
+    if (!isAuthenticated) {
+      setBookings([])
+      setLoading(false)
+      return
+    }
+
+    try {
+      console.log('📋 [BOOKING] 予約一覧を取得中...')
+      const response = await BookingService.getBookings()
+      
+      if (response.success) {
+        console.log('✅ [BOOKING] 予約一覧取得成功:', response.data)
+        // PaginatedResponseの場合、itemsプロパティに配列データが含まれる
+        const bookingsData = Array.isArray(response.data) ? response.data : (response.data as any)?.items || []
+        
+        // キャンセル済み予約を除外して表示
+        const activeBookings = bookingsData.filter((booking: Booking) => 
+          booking.status !== '取消'
+        )
+        
+        console.log('📋 [BOOKING] アクティブ予約:', activeBookings.length, '件')
+        setBookings(activeBookings)
+      } else {
+        console.error('❌ [BOOKING] 予約一覧取得失敗')
+        setError("予約の取得に失敗しました")
+      }
+    } catch (error) {
+      console.error('❌ [BOOKING] 予約一覧取得エラー:', error)
+      setError("予約の取得に失敗しました")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchBookings()
+  }, [isAuthenticated, authLoading])
+
+  // ページフォーカス時にデータを再取得（頻度制限付き）
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('📋 [BOOKING] ページフォーカス - データ再取得')
+      fetchBookings() // 内部で頻度制限が適用される
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
 
   const services = [
     {
@@ -47,29 +118,12 @@ export default function BookingPage() {
     },
   ]
 
-  const upcomingBookings = [
-    {
-      id: 1,
-      service: "犬の保育園（1日コース）",
-      date: "8月15日（木）",
-      time: "9:00 - 17:00",
-      status: "confirmed",
-    },
-    {
-      id: 2,
-      service: "ドッグラン利用",
-      date: "8月18日（日）",
-      time: "10:00 - 11:00",
-      status: "confirmed",
-    },
-  ]
-
   const handleServiceSelect = (serviceId: string) => {
     router.push(`/booking/service/${serviceId}`)
   }
 
-  const handleBookingChange = (bookingId: number) => {
-    router.push(`/booking-detail?id=${bookingId}`)
+  const handleBookingDetail = (bookingId: string) => {
+    router.push(`/booking-detail?bookingId=${bookingId}`)
   }
 
   return (
@@ -186,7 +240,15 @@ export default function BookingPage() {
             </CardTitle>
           </ThemedCardHeader>
           <CardContent className="pb-5">
-            {upcomingBookings.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-6">
+                <p className="text-gray-600 text-sm">予約を読み込み中...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-6">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            ) : bookings.length === 0 ? (
               <div className="text-center py-6">
                 <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                 <p className="text-gray-600 text-sm">予約はありません</p>
@@ -194,25 +256,48 @@ export default function BookingPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {upcomingBookings.map((booking) => (
+                {bookings.map((booking) => (
                   <div
                     key={booking.id}
                     className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
                     style={{ backgroundColor: currentTheme.primary[50] }}
-                    onClick={() => handleBookingChange(booking.id)}
+                    onClick={() => handleBookingDetail(booking.id)}
                   >
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-800 text-sm">{booking.service}</h4>
+                      <h4 className="font-medium text-gray-800 text-sm">
+                        {booking.service_type === '保育園' ? '犬の保育園' : 
+                         booking.service_type === '体験' ? '体験サービス' : 
+                         booking.service_type === 'イベント' ? 'イベント参加' : 
+                         booking.service_type === 'その他' ? 'その他サービス' :
+                         booking.service_type}
+                      </h4>
                       <p className="text-xs text-gray-600">
-                        {booking.date} • {booking.time}
+                        {new Date(booking.booking_date).toLocaleDateString('ja-JP', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          weekday: 'short'
+                        })} • {booking.booking_time || '09:00-17:00'}
                       </p>
+                      {booking.dog_id && (
+                        <p className="text-xs text-gray-500">ワンちゃん: {booking.dog_id}</p>
+                      )}
                     </div>
                     <div className="flex items-center space-x-2">
                       <Badge
-                        style={{ backgroundColor: currentTheme.accent[100], color: currentTheme.accent[700] }}
+                        style={{ 
+                          backgroundColor: booking.status === '確定' ? currentTheme.accent[100] : 
+                                          booking.status === '受付中' ? '#e3f2fd' :
+                                          booking.status === '完了' ? '#e8f5e8' :
+                                          booking.status === '取消' ? '#ffebee' : currentTheme.accent[100],
+                          color: booking.status === '確定' ? currentTheme.accent[700] : 
+                                booking.status === '受付中' ? '#1976d2' :
+                                booking.status === '完了' ? '#388e3c' :
+                                booking.status === '取消' ? '#d32f2f' : currentTheme.accent[700]
+                        }}
                         className="text-xs"
                       >
-                        確定済み
+                        {booking.status}
                       </Badge>
                       <ChevronRight className="w-4 h-4 text-gray-400" />
                     </div>

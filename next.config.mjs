@@ -4,13 +4,8 @@ const nextConfig = {
   reactStrictMode: false,
   output: 'standalone',
   
-  // パフォーマンス最適化
-  compress: true,
-  poweredByHeader: false,
-  generateEtags: false,
-  
-  // サーバー最適化（Next.js 15対応）
-  serverExternalPackages: ['fs-extra'],
+  // 事前レンダリングを無効化
+  trailingSlash: false,
   
   eslint: {
     ignoreDuringBuilds: true,
@@ -22,39 +17,15 @@ const nextConfig = {
     unoptimized: true,
   },
   
-  // Azure App Service最適化
-  trailingSlash: false,
-  
-  experimental: {
-    // 有効なオプションのみ
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-  },
-  
-  // デプロイメント最適化（experimental外に移動）
-  outputFileTracingRoot: process.cwd(),
-  
   webpack: (config, { isServer, dev }) => {
     if (!isServer) {
       config.resolve.fallback = {
         fs: false,
         path: false,
         os: false,
+        stream: false,
+        buffer: false,
       }
-    }
-    
-    // メモリ効率化の設定
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-        },
-      },
     }
     
     return config

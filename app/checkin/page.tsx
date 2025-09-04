@@ -112,16 +112,13 @@ export default function CheckInPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">ステータス</span>
-                    <Badge 
-                      variant="secondary" 
-                      className={
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         primaryBooking.status === '確定' ? "bg-green-100 text-green-800" :
                         primaryBooking.status === '受付中' ? "bg-blue-100 text-blue-800" :
                         "bg-gray-100 text-gray-800"
-                      }
-                    >
+                      }`}>
                       {primaryBooking.status}
-                    </Badge>
+                    </span>
                   </div>
                 </CardContent>
               </Card>

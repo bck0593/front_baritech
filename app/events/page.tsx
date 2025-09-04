@@ -13,6 +13,7 @@ import { ThemedButton } from "@/components/themed-button"
 import { useTheme } from "@/contexts/theme-context"
 import BottomNavigation from "@/components/bottom-navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import LoadingScreen from "@/components/loading-screen"
 
 export default function EventsPage() {
   const router = useRouter()
@@ -92,7 +93,7 @@ export default function EventsPage() {
     { id: "education", name: "学習", icon: "📚" },
   ]
 
-  const filteredEvents = selectedCategory === "all" ? events : events.filter((e) => e.category === selectedCategory)
+  const filteredEvents = events // categoryフィルタリングは無効にする
 
   const handleEventRegistration = (eventId: string) => {
     // 本来はAPIで参加登録/キャンセルを行う
@@ -137,7 +138,7 @@ export default function EventsPage() {
             }}
           >
             <Image 
-              src={event.image || "/placeholder.svg"} 
+              src="/placeholder.svg" 
               alt={event.title} 
               width={300}
               height={200}
@@ -151,7 +152,7 @@ export default function EventsPage() {
                 style={{ backgroundColor: currentTheme.accent[100], color: currentTheme.accent[700] }}
                 className="text-xs"
               >
-                {categories.find((c) => c.id === event.category)?.name}
+                イベント
               </Badge>
               {event.status === "published" && (
                 <Badge style={{ backgroundColor: currentTheme.primary[600], color: "white" }}>公開中</Badge>
@@ -166,8 +167,8 @@ export default function EventsPage() {
               <div className="flex items-center space-x-3">
                 <Calendar className="w-5 h-5" style={{ color: currentTheme.primary[600] }} />
                 <div>
-                  <div className="font-medium">{event.date}</div>
-                  <div className="text-sm text-gray-600">{event.startTime}〜{event.endTime}</div>
+                  <div className="font-medium">{event.event_date}</div>
+                  <div className="text-sm text-gray-600">{event.start_time}</div>
                 </div>
               </div>
 
@@ -178,7 +179,7 @@ export default function EventsPage() {
 
               <div className="flex items-center space-x-3">
                 <Tag className="w-5 h-5" style={{ color: currentTheme.accent[500] }} />
-                <div className="font-medium">{formatPrice(event.price)}</div>
+                <div className="font-medium">{formatPrice(event.fee || 0)}</div>
               </div>
             </CardContent>
           </ThemedCard>
@@ -188,27 +189,19 @@ export default function EventsPage() {
               <CardTitle className="text-base">イベント詳細</CardTitle>
             </ThemedCardHeader>
             <CardContent>
-              <p className="text-gray-700 mb-4">{event.details}</p>
+              <p className="text-gray-700 mb-4">{event.description}</p>
 
               <div className="space-y-3">
                 <div>
                   <h4 className="font-medium text-gray-800 mb-2">特典・サービス</h4>
                   <div className="grid grid-cols-2 gap-2">
-                    {event.benefits && event.benefits.length > 0 ? event.benefits.map((benefit: string, index: number) => (
-                      <div key={index} className="flex items-center space-x-2 text-sm text-gray-600">
-                        <div
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: currentTheme.accent[500] }}
-                        ></div>
-                        <span>{benefit}</span>
-                      </div>
-                    )) : <span className="text-xs text-gray-400">特典なし</span>}
+                    <span className="text-xs text-gray-400">特典なし</span>
                   </div>
                 </div>
 
                 <div>
                   <h4 className="font-medium text-gray-800 mb-1">主催</h4>
-                  <p className="text-sm text-gray-600">{event.organizer}</p>
+                  <p className="text-sm text-gray-600">主催者</p>
                 </div>
               </div>
             </CardContent>
@@ -227,7 +220,7 @@ export default function EventsPage() {
   }
 
   if (loading) {
-    return <div className="max-w-md mx-auto py-20 text-center text-gray-500">イベントを読み込み中...</div>
+    return <LoadingScreen message="イベントを読み込み中..." />
   }
   if (error) {
     return <div className="max-w-md mx-auto py-20 text-center text-red-500">{error}</div>
@@ -288,7 +281,7 @@ export default function EventsPage() {
                 <div className="flex items-start space-x-3">
                   <div className="w-20 h-16 bg-gray-100 rounded-lg overflow-hidden">
                     <Image
-                      src={event.image || "/placeholder.svg"}
+                      src="/placeholder.svg"
                       alt={event.title}
                       width={80}
                       height={64}
@@ -302,8 +295,8 @@ export default function EventsPage() {
                         <p className="text-xs text-gray-600">{event.description}</p>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-medium text-gray-800">{event.date}</div>
-                        <div className="text-sm text-gray-600">{event.startTime}〜{event.endTime}</div>
+                        <div className="text-sm font-medium text-gray-800">{event.event_date}</div>
+                        <div className="text-sm text-gray-600">{event.start_time}</div>
                       </div>
                     </div>
 
@@ -315,28 +308,18 @@ export default function EventsPage() {
 
                       <div className="flex items-center justify-between">
                         <div className="text-xs text-gray-600">
-                          {event.organizer}
+                          主催者
                         </div>
                         <div className="flex items-center space-x-2">
                           <Badge variant="outline" className="text-xs">
-                            {formatPrice(event.price)}
+                            {formatPrice(event.fee || 0)}
                           </Badge>
-                          {event.status === "published" && (
-                            <Badge
-                              style={{ backgroundColor: currentTheme.primary[600], color: "white" }}
-                              className="text-xs"
-                            >
-                              公開中
-                            </Badge>
-                          )}
-                          {event.benefits?.includes("trial-pack") && (
-                            <Badge
-                              className="text-xs"
-                              style={{ backgroundColor: "rgb(0, 50, 115)", color: "white" }}
-                            >
-                              トライアル受取可
-                            </Badge>
-                          )}
+                          <Badge
+                            style={{ backgroundColor: currentTheme.primary[600], color: "white" }}
+                            className="text-xs"
+                          >
+                            公開中
+                          </Badge>
                         </div>
                       </div>
                     </div>

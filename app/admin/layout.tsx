@@ -5,7 +5,7 @@ import type React from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { AdminGuard } from "@/components/admin-guard"
+import AdminGuard from "@/components/admin-guard"
 
 interface AdminLayoutProps {
   children: React.ReactNode

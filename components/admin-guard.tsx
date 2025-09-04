@@ -1,20 +1,20 @@
 "use client"
 
 import type React from "react"
-
 import { useAuth } from "@/contexts/auth-context"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, Home } from "lucide-react"
+import type { UserRole } from "@/lib/types"
 
 interface AdminGuardProps {
   children: React.ReactNode
-  requiredRole?: "admin" | "super_admin"
+  requiredRole?: UserRole
 }
 
-export function AdminGuard({ children, requiredRole = "admin" }: AdminGuardProps) {
+export default function AdminGuard({ children, requiredRole = "管理者" }: AdminGuardProps) {
   const { user, isLoading, hasPermission } = useAuth()
   const router = useRouter()
 
@@ -49,7 +49,7 @@ export function AdminGuard({ children, requiredRole = "admin" }: AdminGuardProps
             <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">アクセス権限がありません</h2>
             <p className="text-gray-600 text-center mb-6">
-              このページにアクセスするには{requiredRole === "super_admin" ? "スーパー管理者" : "管理者"}権限が必要です。
+              このページにアクセスするには{requiredRole === "スーパー管理者" ? "スーパー管理者" : "管理者"}権限が必要です。
             </p>
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => router.push("/")}>

@@ -6,6 +6,10 @@ import { ThemeProvider } from "@/contexts/theme-context"
 import { ProfileProvider } from "@/contexts/profile-context"
 import { AuthProvider } from "@/contexts/auth-context"
 
+// 動的レンダリングを強制
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const inter = Inter({ 
   subsets: ["latin"],
   display: 'swap',

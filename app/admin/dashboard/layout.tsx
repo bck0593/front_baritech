@@ -83,8 +83,8 @@ export default function AdminDashboardLayout({
               <p className="font-medium text-sm">{user?.name}</p>
               <div className="flex items-center gap-2 mt-1">
                 <Shield className="w-3 h-3" />
-                <Badge variant={user?.role === "super_admin" ? "default" : "secondary"} className="text-xs">
-                  {user?.role === "super_admin" ? "スーパー管理者" : "管理者"}
+                <Badge variant={user?.role === "スーパー管理者" ? "default" : "secondary"} className="text-xs">
+                  {user?.role === "スーパー管理者" ? "スーパー管理者" : "管理者"}
                 </Badge>
               </div>
             </div>
